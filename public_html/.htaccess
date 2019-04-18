@@ -1,0 +1,39 @@
+Options -Indexes
+IndexIgnore *
+
+<Files index.php>
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+DirectoryIndex index.php
+
+Header set Referrer-Policy "no-referrer"
+Header set Feature-Policy "geolocation 'none';midi 'none';notifications 'none';push 'none';sync-xhr 'none';microphone 'none';camera 'none';magnetometer 'none';gyroscope 'none';speaker 'self';vibrate 'none';fullscreen 'self';payment 'none';"
+Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+Header set X-Frame-Options "DENY"
+Header set X-XSS-Protection "1; mode=block"
+Header set X-Content-Type-Options "nosniff"
+Header set Content-Security-Policy "default-src 'self'; img-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; frame-src *.youtube.com 'self' ;"
+
+RewriteEngine On
+RewriteBase /
+
+#remove / at url end
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+
+RewriteCond %{QUERY_STRING} ^searchText=(.+)&(.+)
+RewriteRule ^search$ search/%1? [R,L]
+
+RewriteRule ^(.+)/$ /$1 [L,R=301]
+
+#don't rewrite /index.html
+RewriteRule ^index\.html$ - [L]
+
+#send all other traffic to the handler, may have to comment out succeeding lines
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule . /php/handler.php [L]
