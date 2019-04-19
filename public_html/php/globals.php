@@ -28,7 +28,7 @@ function sp_css($css_filename) {
 function sp_js($js_filename) {
 	global $lpre;
 	global $RESOURCE_VERSION;
-	return $lpre . '/scripts/' . $js_filename . (IN_DEV?(DEV_MIN?"-min":""):"-min_".$RESOURCE_VERSION) .".js";
+	return $lpre . '/scripts/' . $js_filename . (IN_DEV?"":"-min_".$RESOURCE_VERSION) .".js";
 }
 
 function sp_home(){

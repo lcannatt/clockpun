@@ -47,7 +47,7 @@ $handler->register('/^manage$/',function($vars){
 	$db=Database::getDB();
 	$access=$db->getUserAccess();
 	if($access['active']){
-		if($access['hr']||$access['supreme']){
+		if($access['hr']||$access['supreme']||$access['admin']){
 			require_once 'pc_manage.php';
 			p_createUserManagement();
 		}

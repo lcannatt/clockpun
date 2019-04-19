@@ -84,12 +84,12 @@ function p_navBarTop(){
 	if($access['review']||$access['hr']||$access['admin']||$access['supreme']){
 		echo '<a href="'.sp_review().'">Review Time</a>';
 	}
-	if($access['hr']||access['supreme']){
+	if($access['hr']||$access['supreme']){
 		echo '<a href="'.sp_manage().'">Manage Users</a>';
 	}
 	echo'</nav>
 		<nav class="float-r">
-		<span class="dropdown-button">'.$db->getUserFirstName().'</span>
+		<span class="dropdown-button">'.ucfirst($db->getUserFirstName()).'</span>
 		<a href="'.sp_logOut().'">Log Out</a>
 		</nav>';
 	echo'</div></div></header>';

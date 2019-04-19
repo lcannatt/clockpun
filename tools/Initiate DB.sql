@@ -20,6 +20,10 @@ CREATE TABLE `clockpun_db`.`user` (
 COMMENT = 'user data';
 -- Creates default god mode account username: '1' password: 'tapir'
 INSERT INTO user (username,password,first_name,boss_id,flags) VALUES ('1','$2y$11$wdyPlvBE3zYQB6iV9Qv1e.SAeYA4Ho70.yR/zfBQv.ffa3oE2yING','admin',-1,63)
+INSERT INTO user (username,password,last_name,first_name,email,boss_id,department,flags) VALUES ('hr','$2y$11$wdyPlvBE3zYQB6iV9Qv1e.SAeYA4Ho70.yR/zfBQv.ffa3oE2yING','User','HR','l.cannatti@tricentis.com',1,1,15);
+INSERT INTO user (username,password,last_name,first_name,email,boss_id,department,flags) VALUES ('mgr','$2y$11$wdyPlvBE3zYQB6iV9Qv1e.SAeYA4Ho70.yR/zfBQv.ffa3oE2yING','User','Manager','l.cannatti@tricentis.com',1,1,7);
+INSERT INTO user (username,password,last_name,first_name,email,boss_id,department,flags) VALUES ('usr','$2y$11$wdyPlvBE3zYQB6iV9Qv1e.SAeYA4Ho70.yR/zfBQv.ffa3oE2yING','User','Employee','l.cannatti@tricentis.com',1,1,3);
+INSERT INTO user (username,password,last_name,first_name,email,boss_id,department,flags) VALUES ('blocked','$2y$11$wdyPlvBE3zYQB6iV9Qv1e.SAeYA4Ho70.yR/zfBQv.ffa3oE2yING','User','Blocked','l.cannatti@tricentis.com',1,1,0);
 
 CREATE TABLE `clockpun_db`.`user_devices` (
   `token_id` INT NOT NULL AUTO_INCREMENT,

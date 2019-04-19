@@ -35,5 +35,39 @@ nav a:hover, nav .dropdown-button:hover{
 
 body{
 	margin:0;
-	
+}
+.main .wrapper{
+	margin:auto;
+	width:900px;
+}
+/* tabbed content browsing */
+.tab-contents{
+	background-color:#ddd;
+	margin:0;
+	padding:3em;
+}
+.tabs{
+	background-color: grey;
+}
+.cf:after {
+	content: "";
+	clear: both;
+	display: table;
+}
+.tabLink,.addNew{
+	padding:.9em 1.1em;
+	display:inline-block;
+	cursor:pointer;
+}
+.tabLink.active{
+	background-color:#ddd;
+}
+.tabLink:hover{
+	background-color:lightgrey;
+}
+.tab-info{
+	border-bottom:1px solid black;
+}
+.tab-info h3{
+	margin:0;
 }
