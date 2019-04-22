@@ -33,12 +33,9 @@ $handler->register('/^time$/',function($vars){
 });
 $handler->register('/^review$/',function($vars){
 	$db=Database::getDB();
-	$access=$db->getUserAccess();
-	if($access['active']){
-		if($access['review']||$access['supreme']){
-			require_once 'pc_review.php';
-			p_createReview();
-		}
+	if($db->getCanCreateUser()){
+		require_once 'pc_review.php';
+		p_createReview();
 	}else{
 		header("Location: ". sp_home());
 	}
@@ -66,6 +63,20 @@ $handler->register('/^logout$/', function($vars) {
 
 	//redirect to the home page
 	header("Location: ".sp_home());
+});
+$handler->register('/^create-account\/(.+)/',function($vars){
+	$token=$vars[0];
+	$db=Database::getDB();
+	if($db->getLoggedIn()){
+		p_create403('Error 403: Forbidden');
+	}
+	$userData=$db->getUserDataFromToken($token,true);
+	if($userData){
+		require_once 'pc_createaccount.php';
+		p_createAccount($userData);
+	}else{
+		p_create404();
+	}
 });
 
 //do the actual handling

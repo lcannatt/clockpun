@@ -17,7 +17,7 @@ function p_create404($error_msg = false) {
 function p_create403($error_msg) {
 	header('HTTP/1.0 403 Forbidden', true, 403);
 	p_header();
-	echo '<span class="error"><h1>404<h1>'.$error_msg.'</span>';
+	echo '<span class="error"><h1>403<h1>'.$error_msg.'</span>';
 	p_footer();
 }
 

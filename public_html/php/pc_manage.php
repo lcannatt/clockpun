@@ -67,7 +67,7 @@ function p_createUserManagement(){
 				<h3>Create a new user account</h3>
 			</div>
 			<div class="single-form">
-				<form action="/newUser.php" method="post">
+				<form action="/php/create_user.php" method="post">
 					<table class="table-form"><tbody>
 						<tr>
 							<td><label for="fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="fname"></td>
@@ -87,7 +87,7 @@ function p_createUserManagement(){
 			if($i>0){
 				echo '<td></td>';
 			}
-			echo '<td><input type="checkbox" name="grant_'.$grants[$i].'" id="grant_'.$grants[$i].'"></td><td><label for="grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
+			echo '<td><input type="checkbox" name="grant[]" id="grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
 			if($i<count($grants)-1){
 				echo '<tr>';
 			}
