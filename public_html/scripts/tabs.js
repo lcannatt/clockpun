@@ -1,6 +1,6 @@
 'use strict';
 
-(function main(){
+var TPR_TABS = function main(){
 	//Manage Tabs
 	function initTabs(){
 		//hide them all
@@ -9,9 +9,17 @@
 			element.style.display="none";
 		});
 		//show only the one that's supposed to be active.
-		let active=document.querySelector(".tabLink.active");
+		//first check if we have one in the window hash\
+		let active;
+		if(window.location.hash.length>1){
+			active=document.querySelector('[name="'+window.location.hash.substr(1)+'"]');
+		}
+		if(active==null){
+			active=document.querySelector('.tabLink');
+		}
 		console.log(active);
 		if(active){
+			active.classList.toggle('active')
 			let name=active.getAttribute('name');
 			let tab=document.getElementById(name);
 			if(tab){
@@ -32,15 +40,15 @@
 		//update class tracking of who's active here
 		document.querySelector(".tabLink.active").classList.toggle('active');
 		document.querySelector('[name="'+id+'"]').classList.toggle('active');
+		window.location.hash='#'+id;
 	}
 
-	//function calls to actually run
-	initTabs();
-	document.addEventListener("click",function(e){
-		if(e.target.classList.contains("tabLink")){
-			if(!e.target.classList.contains("addNew")){
-				activateTab(e.target.getAttribute('name'));
-			}
+	return{
+		initTabs:function(){
+			return initTabs();
+		},
+		activateTab:function(id){
+			return activateTab(id);
 		}
-	})
-})();
+	}
+}();

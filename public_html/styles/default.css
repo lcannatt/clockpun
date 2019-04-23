@@ -2,6 +2,7 @@
 /* Top Nav Bar */
 
 .nav-top{
+	color:white;
 	background-color: #806394;
 	height:3em;
 }
@@ -21,16 +22,20 @@ nav{
 	vertical-align: middle;
 }
 nav a, nav .dropdown-button{
+	color:white;
 	display:inline-block;
 	padding:.9em 1.1em;
 	text-decoration: none;
-	color:white;
 	cursor: pointer;
 }
 nav a:hover, nav .dropdown-button:hover{
 	background-color:#704e86;
 }
 
+.nav-top h2{
+	margin:0;
+	padding:.4em;
+}
 /* General Body Stuff */
 
 body{
@@ -39,6 +44,7 @@ body{
 .main .wrapper{
 	margin:auto;
 	width:900px;
+	position:relative;
 }
 /* tabbed content browsing */
 .tab-contents{
@@ -70,4 +76,31 @@ body{
 }
 .tab-info h3{
 	margin:0;
+}
+.inactive{
+	pointer-events: none;
+}
+.center{
+	text-align:center;
+}
+/* popups */
+#popup{
+	width:20em;
+	background-color:lightpink;
+	cursor:default;
+}
+#popup-exit{
+	float: right;
+	cursor:pointer;
+}
+#popup-exit:hover{
+	background-color:white;
+}
+#popup-header{
+	padding:.5em;
+	border-bottom: 1px solid red;
+}
+#popup-message{
+	text-align: center;
+	padding:1em;
 }

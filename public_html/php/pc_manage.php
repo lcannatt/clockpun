@@ -16,7 +16,7 @@ function p_createUserManagement(){
 	echo'<div class="tabs">
 			<div class="cf">
 				<div class="float-l">
-					<span class="tabLink active" name="search">Search</span><!--
+					<span class="tabLink" name="search">Search</span><!--
 					--><span class="tabLink" name="browse">Browse</span>
 				</div>
 				<div class="float-r">
@@ -67,17 +67,17 @@ function p_createUserManagement(){
 				<h3>Create a new user account</h3>
 			</div>
 			<div class="single-form">
-				<form action="/php/create_user.php" method="post">
+				<form id="new-user" action="/create-user" method="post">
 					<table class="table-form"><tbody>
 						<tr>
 							<td><label for="fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="fname"></td>
-						</td>
+						</tr>
 						<tr>
 							<td><label for="lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="lname"></td>
-						</td>
+						</tr>
 						<tr>
 							<td><label for="email">Email</label></td><td colspan="2"><input type="text" name="email" id="email"></td>
-						</td>
+						</tr>
 						<tr>
 							<td>Roles</td>';
 	//display roles you can grant:
@@ -111,7 +111,8 @@ function p_createUserManagement(){
 		</div>
 		</div>
 	</div>';
-	
+	echo '<script type="text/javascript" src="'; echo sp_js("generics").'"></script>';
 	echo '<script type="text/javascript" src="'; echo sp_js("tabs").'"></script>';
+	echo '<script type="text/javascript" src="'; echo sp_js("manage").'"></script>';
 	p_footer();
 }

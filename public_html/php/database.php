@@ -167,7 +167,7 @@ class Database {
 	}
 	public function getUserDataFromToken($token,$new=false){
 		//finds user record from a recovery token. $new being true will require that the user not have a username yet.
-		$sql="SELECT user_id,first_name,last_name FROM user WHERE recovery_code=? AND username".($new?'':'!')."='';";
+		$sql="SELECT user_id,first_name,last_name,email FROM user WHERE recovery_code=? AND username".($new?'':'!')."='';";
 		return $this->db->preparedQuerySingleRow($sql,'s',array($token));
 	}
 

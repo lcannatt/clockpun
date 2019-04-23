@@ -61,6 +61,8 @@ function p_header($logged_in=0){
 		</head>';
 	if($logged_in==1){
 		p_navBarTop();
+	}else{
+		p_loggedOutTop();
 	}
 	echo '<body>';
 }
@@ -93,4 +95,14 @@ function p_navBarTop(){
 		<a href="'.sp_logOut().'">Log Out</a>
 		</nav>';
 	echo'</div></div></header>';
+}
+
+function p_loggedOutTop(){
+	echo '<header>
+	<div class="nav-top">
+	<div class="wrapper">
+	<div class="center">
+	<h2>ClockMe</h2>
+	</div></div></div>
+	</header>';
 }

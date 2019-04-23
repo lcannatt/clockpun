@@ -11,11 +11,9 @@ var TPR_GEN = function (){
 	var postWrapper = function(form,onSuccess,onFailure,onError){
 		var xhttp= new XMLHttpRequest();
 		var FD= new FormData(form);
-		FD.append("ajax","1");
-		if(FD.get('image').size==0){
-			FD.delete("image");
-		}
+		FD.append("async","1");
 		xhttp.addEventListener("load",function(event){
+			form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=false;});
 			if(xhttp.status==200){
 				if(xhttp.getResponseHeader('X-status')=='ok'){
 					onSuccess.bind(null,xhttp)();
@@ -25,16 +23,17 @@ var TPR_GEN = function (){
 			} else { // Non 200 code response
 				onFailure.bind(null,xhttp)()
 			}
-			// form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=false;});
+			
 		})
 		xhttp.addEventListener("error",function(){
+			form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=false;});
 			onError.bind(null,xhttp)();
-			// form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=false;});
+			
 		});
 		xhttp.open("POST",form.action);
 		xhttp.send(FD);
 		//Disable form submissions while waiting for response
-		// form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=true});
+		form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=true});
 	}
 
 	//  Generic tpr AJAX Get handler
@@ -83,4 +82,4 @@ var TPR_GEN = function (){
 			return setCookie(name, value, delta, path)
 		}
 	}
-}
+}();

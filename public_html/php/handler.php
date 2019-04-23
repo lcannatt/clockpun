@@ -78,7 +78,16 @@ $handler->register('/^create-account\/(.+)/',function($vars){
 		p_create404();
 	}
 });
-
+$handler->register('/^register/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		require_once 'register.php';
+	}
+});
+$handler->register('/^create-user/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		require_once 'create_user.php';
+	}
+});
 //do the actual handling
 if(!($handler->handle($path))) {
 	p_create404();

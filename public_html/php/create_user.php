@@ -51,7 +51,7 @@ if($db->getCanCreateUser()){
 		if($success){
 			tpr_asyncOK(['url'=>sp_newUser($recoveryCode)]);
 		}else{
-			tpr_asyncError('Server error, please try again. If the error persists, please note the time and contact your administrator.')
+			tpr_asyncError('Server error, please try again. If the error persists, please note the time and contact your administrator.');
 		}
 	}
 } else {
