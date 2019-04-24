@@ -111,8 +111,8 @@ function p_createUserManagement(){
 		</div>
 		</div>
 	</div>';
-	echo '<script type="text/javascript" src="'; echo sp_js("generics").'"></script>';
-	echo '<script type="text/javascript" src="'; echo sp_js("tabs").'"></script>';
+	echo '<script type="text/javascript" src="'; echo sp_js("tpr").'"></script>';
+	echo '<script type="text/javascript" src="'; echo sp_js("cp_common").'"></script>';
 	echo '<script type="text/javascript" src="'; echo sp_js("manage").'"></script>';
 	p_footer();
 }

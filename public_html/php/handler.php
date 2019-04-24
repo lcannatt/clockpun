@@ -73,7 +73,7 @@ $handler->register('/^create-account\/(.+)/',function($vars){
 	$userData=$db->getUserDataFromToken($token,true);
 	if($userData){
 		require_once 'pc_createaccount.php';
-		p_createAccount($userData);
+		p_createAccount($userData,$token);
 	}else{
 		p_create404();
 	}

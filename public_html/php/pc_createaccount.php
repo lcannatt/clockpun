@@ -1,7 +1,7 @@
 <?php
 //provide forms for user to create new account info from creation link.
 require_once 'pc_general.php';
-function p_createAccount($userData){
+function p_createAccount($userData,$token){
 	p_header();
 	echo '<br>
 	<div class="main">
@@ -13,7 +13,8 @@ function p_createAccount($userData){
 			</div>
 			<br>
 			<div class="form-container">
-				<form id="reg-form" action="/register" action="post">
+				<form id="reg-form" action="/register" method="post">
+				<input type="hidden" id="token" name="token" value="'.$token.'">
 					<table><tbody>
 						<tr>
 							<td><label for="username">Username</label></td><td colspan="2"><input type="text" name="username" id="username"></td>
@@ -34,14 +35,16 @@ function p_createAccount($userData){
 							<td><label for="email">Email</label></td><td colspan="2"><input type="text" name="email" id="email" value="'.$userData['email'].'"></td>
 						</tr>
 						<tr>
-							<td colspan="2"><input type="submit" name="register" value="Register" disabled="true"></input></td>
+							<td colspan="2"><input type="submit" name="register" value="Register" id="register" disabled="true"></input></td>
 						</tr>
 					</tbody></table>
 				</form>
 			</div>
 		</div>
+	</div>
 	</div>';
-	echo '<script type="text/javascript" src="'; echo sp_js("generics").'"></script>';
+	echo '<script type="text/javascript" src="'; echo sp_js("tpr").'"></script>';
+	echo '<script type="text/javascript" src="'; echo sp_js("cp_common").'"></script>';
 	echo '<script type="text/javascript" src="'; echo sp_js("registration").'"></script>';
 	p_footer();
 }

@@ -15,11 +15,11 @@ if($db->getCanCreateUser()){
 	$grants=TPR_Validator::getPostParamMulti('grant');
 	//Note: Checking the length of the string this way is a little hacky and wont work with unicode data.
 	//To do: enable unicode support.
-	if(!$fname || isset($fname[45])){
+	if(!$fname || !TPR_Validator::isValidName($fname)){
 		tpr_asyncError('Please enter a valid first name.');
-	}else if(!$lname || isset($lname[45])){
+	}else if(!$lname || !TPR_Validator::isValidName($lname)){
 		tpr_asyncError('Please enter a valid last name.');
-	}else if(!$email || !preg_match(emailRegex,$email)||isset($email[64])){
+	}else if(!$email || !TPR_Validator::isValidEmail($email)||isset($email[64])){
 		tpr_asyncError('Please enter a valid email.');
 	}else if($mgr!=-1 && (!TPR_Validator::isDigits($mgr) || !$db->getIsValidManager($mgr)) ){
 		tpr_asyncError('Not A Valid Manager.');

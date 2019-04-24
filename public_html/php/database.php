@@ -170,6 +170,12 @@ class Database {
 		$sql="SELECT user_id,first_name,last_name,email FROM user WHERE recovery_code=? AND username".($new?'':'!')."='';";
 		return $this->db->preparedQuerySingleRow($sql,'s',array($token));
 	}
+	public function getUserNameTaken($username){
+		$sql="SELECT count(user_id) as cnt FROM user where username=?";
+		$result=$this->db->preparedQuerySingleRow($sql,'s',array($username));
+		return ($result?($result['cnt']>0):false);
+
+	}
 
 	///////////////////////////////
 	//////////// PUTS /////////////
@@ -187,5 +193,21 @@ class Database {
 		return $this->db->preparedQuery($sql,'sssiis',array($lname,$fname,$email,$mgr,$flags,$token));
 		//username,password,last_name,first_name,email,boss_id,access
 	}
-
+	public function putRegisterUser($username,$pwd,$fname,$lname,$email,$token){
+		//completes account creation process for new account:
+		//get userID, update data, and delete the token out of the user row.
+		
+		//get the userID/confirm the token is valid
+		$sql1="SELECT user_id from user where recovery_code=?;";
+		$result=$this->db->preparedQuerySingleRow($sql1,'s',array($token));
+		if(!$result){
+			ErrorLog::internalError('Could not retrieve a user with the given token: '.$token);
+			return false;
+		}
+		//Update the user info, delete token from user account.
+		$userID=$result['user_id'];
+		$sql2="UPDATE user SET username=?,password=?,first_name=?,last_name=?,email=?,recovery_code=NULL WHERE user_id=?;";
+		$result=$this->db->preparedQuery($sql2,'sssssi',array($username,$pwd,$fname,$lname,$email,$userID));
+		return $result?$userID:false;
+	}
 }

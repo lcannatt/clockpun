@@ -1,3 +1,5 @@
+'use stict';
+
 var TPR_GEN = function (){
 	//	Generic Functions for use across the site
 
@@ -8,12 +10,14 @@ var TPR_GEN = function (){
 	//             * binds onFailure to http status code 200, X-Status not 'ok' or non 200 error code event with xhttp object
 	//             * binds onError to network level failure.
 	//             * re-enables the form after a response/error of any kind is recieved.
-	var postWrapper = function(form,onSuccess,onFailure,onError){
+	var postWrapper = function(form,onSuccess,onFailure,onError,disable=true){
 		var xhttp= new XMLHttpRequest();
 		var FD= new FormData(form);
 		FD.append("async","1");
 		xhttp.addEventListener("load",function(event){
-			form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=false;});
+			if(disable){
+				form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=false;});
+			}
 			if(xhttp.status==200){
 				if(xhttp.getResponseHeader('X-status')=='ok'){
 					onSuccess.bind(null,xhttp)();
@@ -26,14 +30,18 @@ var TPR_GEN = function (){
 			
 		})
 		xhttp.addEventListener("error",function(){
-			form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=false;});
+			if(disable){
+				form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=false;});
+			}
 			onError.bind(null,xhttp)();
 			
 		});
 		xhttp.open("POST",form.action);
 		xhttp.send(FD);
-		//Disable form submissions while waiting for response
-		form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=true});
+		if(disable){
+			//Disable form submissions while waiting for response
+			form.querySelectorAll("input,textarea").forEach(function(currentValue){currentValue.disabled=true});
+		}
 	}
 
 	//  Generic tpr AJAX Get handler
@@ -71,15 +79,93 @@ var TPR_GEN = function (){
 		document.cookie = name + "=" + value + ";" + "expires=" + d.toUTCString() + ";path=" + path;
 	}
 
+	//  GENERIC ELEMENT CREATION WRAPPER
+	// 	Behavior: 	* Creates new element with tag name of @Param tagName
+	//				* Copies all enumerable properties of @Param properties (json object) to new element
+	//				* Returns element object.
+	var newElement = function(tagName,properties){
+		let elem=document.createElement(tagName);
+		for(var property in properties){
+			elem[property]=properties[property];
+		}
+		return elem;
+	}
+
 	return{
-		postWrapper: function(form,onSuccess,onFailure,onError){
-			return postWrapper(form,onSuccess,onFailure,onError);
+		postWrapper: function(form,onSuccess,onFailure,onError,disable){
+			return postWrapper(form,onSuccess,onFailure,onError,disable);
 		},
 		getWrapper : function(url,onSuccess,onFailure,onError){
 			return getWrapper(url,onSuccess,onFailure,onError);
 		},
 		setCookie : function(name, value, delta, path){
-			return setCookie(name, value, delta, path)
+			return setCookie(name, value, delta, path);
+		},
+		newElement : function(tagName,properties){
+			return newElement(tagName,properties);
+		}
+	}
+}();
+
+var TPR_TABS = function main(){
+	//Manage Tabs
+	function initTabs(){
+		//hide them all
+		let tabs=document.querySelectorAll(".tab-contents");
+		tabs.forEach(function(element){
+			element.style.display="none";
+		});
+		//show only the one that's supposed to be active.
+		//first check if we have one in the window hash\
+		let active;
+		if(window.location.hash.length>1){
+			active=document.querySelector('[name="'+window.location.hash.substr(1)+'"]');
+		}
+		if(active==null){
+			active=document.querySelector('.tabLink');
+		}
+		if(active){
+			active.classList.toggle('active')
+			let name=active.getAttribute('name');
+			let tab=document.getElementById(name);
+			if(tab){
+				tab.style.display="block";
+			}
+		}
+		//Set up event listener:
+		document.addEventListener('click',function(e){
+			if(e.target.classList.contains("tabLink")){
+				let id=e.target.getAttribute('name')
+				if(id){
+					activateTab(id);
+				}
+				
+			}
+		});
+
+	}
+	function activateTab(id){
+		let tabs=document.querySelectorAll(".tab-contents");
+		tabs.forEach(function(element){
+			element.style.display="none";
+		});
+		//show only the one that's supposed to be active.
+		let active=document.getElementById(id);
+		if(active){
+			active.style.display="block";
+		}
+		//update class tracking of who's active here
+		document.querySelector(".tabLink.active").classList.toggle('active');
+		document.querySelector('[name="'+id+'"]').classList.toggle('active');
+		window.location.hash='#'+id;
+	}
+
+	return{
+		initTabs:function(){
+			return initTabs();
+		},
+		activateTab:function(id){
+			return activateTab(id);
 		}
 	}
 }();
