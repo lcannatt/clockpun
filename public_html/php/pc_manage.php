@@ -37,7 +37,7 @@ function p_createUserManagement(){
 					<h3>Select any number to edit.</h3>
 				</span>
 				<span class="float-r">
-					<button class="edit-user">Edit</button>
+					<input type="button" value="Edit">
 				</span>
 			</div>
 			<table class="user-table">
@@ -66,11 +66,76 @@ function p_createUserManagement(){
 			<div class="tab-info cf">
 				<h3>Create a new user account</h3>
 			</div>
-			<div class="single-form">
-				<form id="new-user" action="/create-user" method="post">
+			<div class="single-form">';
+	p_newUserForm($db);
+	echo'</div>
+		</div>
+		</div>';
+	p_createEditSingle($db);
+	p_createEditMulti($db);
+	echo '<script type="text/javascript" src="'; echo sp_js("tpr").'"></script>';
+	echo '<script type="text/javascript" src="'; echo sp_js("cp_common").'"></script>';
+	echo '<script type="text/javascript" src="'; echo sp_js("manage").'"></script>';
+	p_footer();
+}
+
+function p_newUserForm($db){
+	//creates the new user form
+	echo'<form id="new-user" action="/create-user" method="post">
+			<table class="table-form"><tbody>
+				<tr>
+					<td><label for="fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="fname"></td>
+				</tr>
+				<tr>
+					<td><label for="lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="lname"></td>
+				</tr>
+				<tr>
+					<td><label for="email">Email</label></td><td colspan="2"><input type="text" name="email" id="email"></td>
+				</tr>
+				<tr>
+					<td>Roles</td>';
+	//display roles you can grant:
+	$grants=$db->getUserGrants();
+	if($grants){
+		for($i=0;$i<count($grants);$i++){
+			if($i>0){
+				echo '<td></td>';
+			}
+			echo '<td><input type="checkbox" name="grant[]" id="grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
+			if($i<count($grants)-1){
+				echo '<tr>';
+			}
+		}
+	}
+	echo'		<tr>
+					<td><label for="manager">Manager (optional)</label></td>
+					<td><select name="manager" id="manager">
+						<option value="-1"></option>';
+	$managers=$db->getManagers();
+	if($managers){
+		foreach($managers as $manager){
+			echo '<option value="'.$manager['user_id'].'">'.$manager['name'].'</option>';
+		}
+	}		
+	echo'				</select></td>
+					</tr>
+					<tr><td colspan="3"><input type="submit" value="Create User"></input></td></tr>
+				</tbody></table>
+			</form>';
+}
+
+//Creates a blank form, front end will populate with the specific info
+function p_createEditSingle($db){
+	echo '<div id="edit-single" class="edit-box nodisplay">
+			<div class="edit-header">
+				<span class="edit-title">Editing </span>
+				<div class="edit-exit float-r">[ X ]</div>
+			</div>
+			<div class="edit-body">';
+	echo '		<form id="edit-user" action="/edit-user" method="post">
 					<table class="table-form"><tbody>
 						<tr>
-							<td><label for="fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="fname"></td>
+							<td><label for="fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="fname"></td><td><input type="button" name="resetpw" value="Reset Password"></td>
 						</tr>
 						<tr>
 							<td><label for="lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="lname"></td>
@@ -80,7 +145,51 @@ function p_createUserManagement(){
 						</tr>
 						<tr>
 							<td>Roles</td>';
-	//display roles you can grant:
+	//show only roles you can grant:
+	$grants=$db->getUserGrants();
+	if($grants){
+		for($i=0;$i<count($grants);$i++){
+			if($i>0){
+				echo '<td></td>';
+			}
+			echo '<td><input type="checkbox" name="grant[]" id="grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
+			if($i<count($grants)-1){
+				echo '<tr>';
+			}
+		}
+	}
+	echo'				<tr>
+							<td><label for="manager">Manager (optional)</label></td>
+							<td><select name="manager" id="manager">
+								<option value="-1"></option>';
+	$managers=$db->getManagers();
+	if($managers){
+		foreach($managers as $manager){
+			echo '<option value="'.$manager['user_id'].'">'.$manager['name'].'</option>';
+		}
+	}		
+	echo'					</select></td>
+						</tr>
+						<tr><td colspan="3"><input type="submit" value="Save"></input></td></tr>
+					</tbody></table>
+				</form>
+			</div>
+		</div>';
+}
+
+//Creates a blank form, front end will populate with specific data
+function p_createEditMulti($db){
+	echo '<div id="edit-multi" class="edit-box nodisplay">
+			<div class="edit-header">
+				<span class="edit-title">Editing for</span>
+				<div class="edit-exit float-r">[ X ]</div>
+			</div>
+			<div class="edit-body">';
+	echo '		<form id="edit-multi" action="/edit-multi" method="post">
+					<table class="table-form"><tbody>
+						<tr>
+						<td>Roles</td>';
+	//show only roles you can grant:
 	$grants=$db->getUserGrants();
 	if($grants){
 		for($i=0;$i<count($grants);$i++){
@@ -105,14 +214,8 @@ function p_createUserManagement(){
 	}		
 	echo'				</select></td>
 					</tr>
-					<tr><td colspan="3"><input type="submit" value="Create User"></input></td></tr>
+					<tr><td colspan="3"><input type="submit" value="Save"></input></td></tr>
 				</tbody></table>
 			</form>
-		</div>
-		</div>
-	</div>';
-	echo '<script type="text/javascript" src="'; echo sp_js("tpr").'"></script>';
-	echo '<script type="text/javascript" src="'; echo sp_js("cp_common").'"></script>';
-	echo '<script type="text/javascript" src="'; echo sp_js("manage").'"></script>';
-	p_footer();
+		</div>';
 }

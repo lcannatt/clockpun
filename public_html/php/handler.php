@@ -33,7 +33,8 @@ $handler->register('/^time$/',function($vars){
 });
 $handler->register('/^review$/',function($vars){
 	$db=Database::getDB();
-	if($db->getCanCreateUser()){
+	$access=$db->getUserAccess();
+	if($access['active'] && ($access['review'] || $access['hr'] || $access['supreme'])){
 		require_once 'pc_review.php';
 		p_createReview();
 	}else{
@@ -42,12 +43,9 @@ $handler->register('/^review$/',function($vars){
 });
 $handler->register('/^manage$/',function($vars){
 	$db=Database::getDB();
-	$access=$db->getUserAccess();
-	if($access['active']){
-		if($access['hr']||$access['supreme']||$access['admin']){
-			require_once 'pc_manage.php';
-			p_createUserManagement();
-		}
+	if($db->getSecCreateUser()){
+		require_once 'pc_manage.php';
+		p_createUserManagement();
 	}else{
 		header("Location: ". sp_home());
 	}
@@ -86,6 +84,16 @@ $handler->register('/^register/',function($vars){
 $handler->register('/^create-user/',function($vars){
 	if($_SERVER['REQUEST_METHOD']=='POST'){
 		require_once 'create_user.php';
+	}
+});
+$handler->register('/^pull$/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getSecPull()){
+			require_once 'api_userdata.php';
+		}else{
+			p_create403('Error 403: Forbidden');
+		}
 	}
 });
 //do the actual handling

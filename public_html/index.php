@@ -5,9 +5,13 @@ $access=$db->getUserAccess();
 if($access['active']===1){
 	if($access['entry']===1){
 		header("Location: " . sp_enter());
+	}else if($access['hr']||$access['review']){
+		header("Location: " . sp_review());
+	}else if($access['admin']||$access['supreme']){
+		header("Location: " . sp_manage());
 	}else{
 		p_header(1);
-		echo '<h1>Awfully hard to tell what\'s going on here, you aren\'t enabled to log time.';
+		echo "<h1>You don't appear to have security to access anything here. Please reach out to your admin.</h1>";
 		p_footer();
 	}
 	

@@ -7,9 +7,9 @@ require_once "database.php";
  * just sets variables for user authentication in the database.
  */
 //this is the name for the username cookies
-DEFINE("USERNAME_COOKIE", "scusername");
+DEFINE("USERNAME_COOKIE", "cpusername");
 //this is the name for the login pwd token
-DEFINE("TOKEN_COOKIE", "sctoken");
+DEFINE("TOKEN_COOKIE", "cptoken");
 
 
 function authenticateFromCookies() {

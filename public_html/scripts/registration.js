@@ -1,6 +1,7 @@
 'use strict';
 
 (function(){
+	// LIVE VALIDATION
 	var recentQuery=false;
 	var pending=false;
 	var validated={
@@ -36,7 +37,9 @@
 		if(input && input.value==obj.username){
 			inputFeedback('#username',1,'Looks Good!');
 			validated.username=true;
+			submitManager();
 		}
+
 	}
 	function validateUserNameFailureHandler(xhttp){
 		let obj = JSON.parse(xhttp.responseText);
@@ -44,10 +47,11 @@
 		if(input && input.value==obj.error){
 			inputFeedback('#username',0,'Username is already taken');
 			validated.username=false;
+			submitManager();
 		}
 	}
 	function errorHandler(xhttp){
-		CP_POPUP.makePopup('Sorry, there appears to be an error with the server. Please try again later.','Server Error');
+		CP_POPUP.makePopup('Sorry, there appears to be an error with the server. Please try again later.','Server Error',0);
 	}
 
 	function timeManagedValidation(){
@@ -150,18 +154,30 @@
 	}
 	function submitManager(){
 		let register=document.getElementById('register');
-		console.log(register,validated);
 		if(!register){
 			return false;
 		}
 		for(var property in validated){
-			console.log(validated[property]);
 			if(!validated[property]){
 				register.disabled=true;
 				return false;
 			}
 		}
 		register.disabled=false;
+		return true;
+	}
+	
+	// SUBMISSION AND REDIRECT HANDLING
+	function createOK(xhttp){
+		CP_POPUP.makePopup('Congrats! Registration Complete. Redirecting to login...','Success',1);
+		setTimeout(function(){
+			window.location.href=window.location.origin;
+		},3000);
+	}
+	function createFail(xhttp){
+		let obj = JSON.parse(xhttp);
+		CP_POPUP.makePopup('Could not create account. '+obj.error,'Error',0);
+
 	}
 	document.addEventListener('keyup',function(e){
 		let target=e.target;
@@ -184,6 +200,22 @@
 			validateEmail();
 		}
 		submitManager();
+	});
+	document.addEventListener('submit',function(e){
+		console.log(e);
+		e.preventDefault();
+		if(e.target.id='reg-form'){
+			//Async submit doesnt include the submit button, so create a temporary input.
+			let hidden=TPR_GEN.newElement('input',{'type':'hidden','name':'register','value':'true','id':'submit'});
+			e.target.appendChild(hidden);
+			TPR_GEN.postWrapper(e.target,
+				createOK,
+				createFail,
+				errorHandler,
+				true);
+			e.target.removeChild(hidden);
+		}
+
 	});
 	CP_POPUP.initPopupHandler();
 })();

@@ -46,11 +46,18 @@ body{
 	width:900px;
 	position:relative;
 }
+.nodisplay{
+	display:none;
+}
 /* tabbed content browsing */
 .tab-contents{
+	display:none;
 	background-color:#ddd;
 	margin:0;
 	padding:3em;
+}
+.tab-contents.active{
+	display:block !important;
 }
 .tabs{
 	background-color: grey;

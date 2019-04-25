@@ -14,9 +14,11 @@ var CP_POPUP = function(){
 		}
 	}
 
-	function makePopup(msg,title){
-		//generic popup for user making
-		let popup=TPR_GEN.newElement('div',{'id':'popup'})
+	function makePopup(msg,title,style=2){
+		// popup for user
+		// type input: 0: Error, 1: OK, 2:Info
+		let types=['error','ok','info']
+		let popup=TPR_GEN.newElement('div',{'id':'popup','class':types[style]})
 		let header=TPR_GEN.newElement('div',{'id':'popup-header'});
 		let titleSpan=TPR_GEN.newElement('span',{'id':'popup-title','innerText':title});
 		header.appendChild(titleSpan);
@@ -51,8 +53,8 @@ var CP_POPUP = function(){
 		initPopupHandler : function(){
 			return initPopupHandler();
 		},
-		makePopup : function(msg,title){
-			return makePopup(msg,title);
+		makePopup : function(msg,title,style){
+			return makePopup(msg,title,style);
 		},
 		emphasisePopup : function(){
 			return emphasisePopup();

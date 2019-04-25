@@ -4,7 +4,7 @@ require_once 'auth.php';
 require_once 'globals.php';
 // Make sure user trying to access this script is authorized to do so
 $db=Database::getDB();
-if($db->getCanCreateUser()){
+if($db->getSecCreateUser()){
 	require_once 'tpr_async.php';
 	require_once 'tpr_validator.php';
 	//check that all the input data is present:
@@ -37,7 +37,7 @@ if($db->getCanCreateUser()){
 			}
 		}
 		//if mgr is set and didnt cause a fail out, user gets time entry
-		if($mgr!==-1){
+		if($mgr!='-1'){
 			$newAccess['entry']=1;
 		}
 		$newAccess['active']=1;
@@ -45,6 +45,8 @@ if($db->getCanCreateUser()){
 		//To do: Add system time in here somewhere to ensure uniqueness
 		//Recovery codes also currently dont expire.
 		//To do: Add expiration time to recovery codes.
+		
+		//generate t (12 bytes to base64 is a 16-character string)
 		$recoveryCode=filter_var(base64_encode(random_bytes(12)),FILTER_SANITIZE_URL);
 		$password='';
 		$success=$db->putNewUser($lname,$fname,$email,$mgr,$newAccess,$recoveryCode);

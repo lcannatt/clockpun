@@ -83,10 +83,10 @@ function p_navBarTop(){
 	if($access['entry']){
 		echo '<a href="'.sp_enter().'">Enter Time</a>';
 	}
-	if($access['review']||$access['hr']||$access['admin']||$access['supreme']){
+	if($access['review']||$access['hr']||$access['supreme']){
 		echo '<a href="'.sp_review().'">Review Time</a>';
 	}
-	if($access['hr']||$access['supreme']){
+	if($access['admin']||$access['supreme']){
 		echo '<a href="'.sp_manage().'">Manage Users</a>';
 	}
 	echo'</nav>

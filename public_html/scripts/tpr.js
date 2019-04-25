@@ -111,10 +111,10 @@ var TPR_TABS = function main(){
 	//Manage Tabs
 	function initTabs(){
 		//hide them all
-		let tabs=document.querySelectorAll(".tab-contents");
-		tabs.forEach(function(element){
-			element.style.display="none";
-		});
+		// let tabs=document.querySelectorAll(".tab-contents");
+		// tabs.forEach(function(element){
+		// 	element.style.display="none";
+		// });
 		//show only the one that's supposed to be active.
 		//first check if we have one in the window hash\
 		let active;
@@ -125,11 +125,11 @@ var TPR_TABS = function main(){
 			active=document.querySelector('.tabLink');
 		}
 		if(active){
-			active.classList.toggle('active')
+			active.classList.add('active');
 			let name=active.getAttribute('name');
 			let tab=document.getElementById(name);
 			if(tab){
-				tab.style.display="block";
+				tab.classList.add("active");
 			}
 		}
 		//Set up event listener:
@@ -145,17 +145,16 @@ var TPR_TABS = function main(){
 
 	}
 	function activateTab(id){
-		let tabs=document.querySelectorAll(".tab-contents");
+		let tabs=document.querySelectorAll(".tab-contents,.tabLink");
 		tabs.forEach(function(element){
-			element.style.display="none";
+			element.classList.remove("active");
 		});
 		//show only the one that's supposed to be active.
 		let active=document.getElementById(id);
 		if(active){
-			active.style.display="block";
+			active.classList.add("active");
 		}
 		//update class tracking of who's active here
-		document.querySelector(".tabLink.active").classList.toggle('active');
 		document.querySelector('[name="'+id+'"]').classList.toggle('active');
 		window.location.hash='#'+id;
 	}

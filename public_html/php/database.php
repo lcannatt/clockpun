@@ -108,7 +108,7 @@ class Database {
 		$results = $this->db->preparedQuerySingleRow($sql, "ss", array($token, $username));
 
 		if($results===false) {
-			$this->appendError("The user could not be authenticated.");
+			$this->db->appendError("The user could not be authenticated.");
 			ErrorLog::genericError('User cannot be authenticated.');
 			return false;
 		}
@@ -156,9 +156,13 @@ class Database {
 		return $this->db->preparedQuery($sql,'',array());
 	}
 
-	public function getCanCreateUser(){
+	public function getSecCreateUser(){
 		// returns whether logged in user is authorized to edit/create user accounts.
 		return $this->user_access['active'] && ($this->user_access['hr'] || $this->user_access['admin'] || $this->user_access['supreme']);
+	}
+	public function getSecPull(){
+		// returns whether logged in user can pull user data using the pull api
+		return $this->user_access['active'] && ($this->user_access['admin'] || $this->user_access['supreme']);
 	}
 	public function getIsValidManager($mgr){
 		// checks if the given user ID is capable of being assigned manager duties. (active, review time access)
@@ -171,10 +175,20 @@ class Database {
 		return $this->db->preparedQuerySingleRow($sql,'s',array($token));
 	}
 	public function getUserNameTaken($username){
+		//checks if a username is in use
 		$sql="SELECT count(user_id) as cnt FROM user where username=?";
 		$result=$this->db->preparedQuerySingleRow($sql,'s',array($username));
 		return ($result?($result['cnt']>0):false);
-
+	}
+	public function getUser($userID){//returns user data
+		$sql="SELECT user_id,username,first_name,last_name,flags,email,boss_id FROM user WHERE user_id=?";
+		$result=$this->db->preparedQuerySingleRow($sql,'i',array($userID));
+		if(!$result){
+			return false;
+		}
+		$access=$this->intToBitArray($result['flags']);
+		$result['flags']=$access;
+		return $result;
 	}
 
 	///////////////////////////////
