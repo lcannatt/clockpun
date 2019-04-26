@@ -84,13 +84,13 @@ function p_newUserForm($db){
 	echo'<form id="new-user" action="/create-user" method="post">
 			<table class="table-form"><tbody>
 				<tr>
-					<td><label for="fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="fname"></td>
+					<td><label for="n_fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="n_fname"></td>
 				</tr>
 				<tr>
-					<td><label for="lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="lname"></td>
+					<td><label for="n_lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="n_lname"></td>
 				</tr>
 				<tr>
-					<td><label for="email">Email</label></td><td colspan="2"><input type="text" name="email" id="email"></td>
+					<td><label for="n_email">Email</label></td><td colspan="2"><input type="text" name="email" id="n_email"></td>
 				</tr>
 				<tr>
 					<td>Roles</td>';
@@ -101,15 +101,15 @@ function p_newUserForm($db){
 			if($i>0){
 				echo '<td></td>';
 			}
-			echo '<td><input type="checkbox" name="grant[]" id="grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
+			echo '<td><input type="checkbox" name="grant[]" id="n_grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="n_grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
 			if($i<count($grants)-1){
 				echo '<tr>';
 			}
 		}
 	}
 	echo'		<tr>
-					<td><label for="manager">Manager (optional)</label></td>
-					<td><select name="manager" id="manager">
+					<td><label for="n_manager">Manager (optional)</label></td>
+					<td><select name="manager" id="n_manager">
 						<option value="-1"></option>';
 	$managers=$db->getManagers();
 	if($managers){
@@ -135,13 +135,16 @@ function p_createEditSingle($db){
 	echo '		<form id="edit-user" action="/edit-user" method="post">
 					<table class="table-form"><tbody>
 						<tr>
-							<td><label for="fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="fname"></td><td><input type="button" name="resetpw" value="Reset Password"></td>
+							<td><label for="s_fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="s_fname"></td><td><input type="button" name="resetpw" value="Reset Password"></td>
 						</tr>
 						<tr>
-							<td><label for="lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="lname"></td>
+							<td><label for="s_lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="s_lname"></td>
 						</tr>
 						<tr>
-							<td><label for="email">Email</label></td><td colspan="2"><input type="text" name="email" id="email"></td>
+							<td><label for="s_email">Email</label></td><td colspan="2"><input type="text" name="email" id="s_email"></td>
+						</tr>
+						<tr>
+							<td><label for="s_grant_active">Active</label></td><td><input type="checkbox" name="grant[]" id="s_grant_active" value="active"></td>
 						</tr>
 						<tr>
 							<td>Roles</td>';
@@ -152,15 +155,15 @@ function p_createEditSingle($db){
 			if($i>0){
 				echo '<td></td>';
 			}
-			echo '<td><input type="checkbox" name="grant[]" id="grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
+			echo '<td><input type="checkbox" name="grant[]" id="s_grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="s_grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
 			if($i<count($grants)-1){
 				echo '<tr>';
 			}
 		}
 	}
 	echo'				<tr>
-							<td><label for="manager">Manager (optional)</label></td>
-							<td><select name="manager" id="manager">
+							<td><label for="s_manager">Manager (optional)</label></td>
+							<td><select name="manager" id="s_manager">
 								<option value="-1"></option>';
 	$managers=$db->getManagers();
 	if($managers){
@@ -196,15 +199,15 @@ function p_createEditMulti($db){
 			if($i>0){
 				echo '<td></td>';
 			}
-			echo '<td><input type="checkbox" name="grant[]" id="grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
+			echo '<td><input type="checkbox" name="grant[]" id="m_grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="m_grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
 			if($i<count($grants)-1){
 				echo '<tr>';
 			}
 		}
 	}
 	echo'			<tr>
-						<td><label for="manager">Manager (optional)</label></td>
-						<td><select name="manager" id="manager">
+						<td><label for="m_manager">Manager (optional)</label></td>
+						<td><select name="manager" id="m_manager">
 							<option value="-1"></option>';
 	$managers=$db->getManagers();
 	if($managers){

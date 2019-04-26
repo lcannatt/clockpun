@@ -195,9 +195,9 @@ class Database {
 	//////////// PUTS /////////////
 	///////////////////////////////
 
-	public function putUserDevice($user_id, $token) {
+	public function putUserDevice($userID, $token) {
 		$sql = "INSERT INTO user_devices (token, user_id, last_login) VALUES (?, ?, NOW());";
-		return $this->db->preparedQuery($sql, "si", array($token, $user_id));
+		return $this->db->preparedQuery($sql, "si", array($token, $userID));
 	}
 
 	public function putNewUser($lname,$fname,$email,$mgr,$newAccess,$token){
@@ -223,5 +223,10 @@ class Database {
 		$sql2="UPDATE user SET username=?,password=?,first_name=?,last_name=?,email=?,recovery_code=NULL WHERE user_id=?;";
 		$result=$this->db->preparedQuery($sql2,'sssssi',array($username,$pwd,$fname,$lname,$email,$userID));
 		return $result?$userID:false;
+	}
+	public function putResetPassword($userID,$token){
+		$sql="UPDATE user SET recovery_code=?,password='' WHERE user_id=?";
+		$result=$this->db->preparedQuery($sql,'si',array($token,$userID));
+		return $result;
 	}
 }

@@ -1,5 +1,5 @@
 <?php
-//this script handles the user pull api
+//this script handles the user push and pull
 //auth was already done in the handler, this script does not check for authorization
 require_once 'database.php';
 require_once 'tpr_async.php';
@@ -22,4 +22,31 @@ function pull_single(){
 	}
 }
 
-pull_single();
+function api_userPull(){//may be expanded for multi pulls later, will add logic if needed
+	pull_single();
+}
+function api_editSingle(){
+	//Get userid sanitization out of the way
+	$userId=TPR_Validator::getPostParam('userid');
+	if(!TPR_Validator::isDigits($userId)){
+		tpr_asyncError('Stop it. Get some help.');
+	}
+	$db=Database::getDB();
+
+	//password reset?
+	if(TPR_Validator::getPostParam('resetpw')){
+		//generate token (12 bytes to base64 is a 16-character string)
+		$recoveryCode=filter_var(base64_encode(random_bytes(12)),FILTER_SANITIZE_URL);
+		$success=$db->putResetPassword($userId,$token);
+		if($success){
+			tpr_asyncOK(['userID'=>$userId]);
+		}else{
+			tpr_asyncError('Server Error Occurred While Resetting Password');
+		}
+	}else{
+		//We're looking at a full user update. Validate inputs:
+		tpr_asyncError('User editing is not built yet');
+	}
+	
+
+}

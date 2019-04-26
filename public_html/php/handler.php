@@ -91,6 +91,17 @@ $handler->register('/^pull$/',function($vars){
 		$db=Database::getDB();
 		if($db->getSecPull()){
 			require_once 'api_userdata.php';
+			api_userPull();
+		}else{
+			p_create403('Error 403: Forbidden');
+		}
+	}
+});
+$handler->register('/^edit-user$/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getSecEdit()){
+			require_once 'api_userdata.php';
 		}else{
 			p_create403('Error 403: Forbidden');
 		}
