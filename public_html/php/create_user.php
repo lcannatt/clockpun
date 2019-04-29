@@ -4,7 +4,7 @@ require_once 'auth.php';
 require_once 'globals.php';
 // Make sure user trying to access this script is authorized to do so
 $db=Database::getDB();
-if($db->getSecCreateUser()){
+if($db->getSecEditUser()){
 	require_once 'tpr_async.php';
 	require_once 'tpr_validator.php';
 	//check that all the input data is present:

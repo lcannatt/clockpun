@@ -18,7 +18,30 @@
 		console.log('oh FUCK');
 	}
 	//Browse User/edit Tools
-	
+	function editSingleSuccessHandler(xhttp){
+		let obj=JSON.parse(xhttp.responseText);
+		if(obj.edit){
+			closeEditBox();
+			CP_POPUP.makePopup('The user has been updated','Great Success',1);
+		}
+	}
+	function editSingleFailureHandler(xhttp){
+		let obj=JSON.parse(xhttp.responseText);
+		CP_POPUP.makePopup(obj.error,'Error',0);
+
+	}
+	function toggleInative(){
+		let button=document.getElementById('toggle-inactive');
+		if(button.value=="Show Inactive"){
+			button.value="Hide Inactive";
+		}else{
+			button.value="Show Inactive";
+		}
+		document.querySelectorAll('.user-inactive').forEach(
+			function(e){
+				e.classList.toggle('nodisplay');
+			})
+	}
 	
 	function editSingle(userId){//creates single user editor. more or less looks like user creation with a password reset
 		closeEditBox()
@@ -58,17 +81,6 @@
 			false)
 		
 	}
-	function editMulti(userIdAry){
-		closeEditBox();
-		let editBox=document.querySelector("#edit-multi");
-		editBox.classList.remove("nodisplay");
-		document.querySelector('.main .wrapper').classList.add('inactive');
-		let form=editBox.querySelector('form');
-		for(let id in userIdAry){
-			form.appendChild(newElement('input',{'type':'hidden','name':'userIds[]','value':userIdAry[id]}));
-		}
-		
-	}
 	function closeEditBox(){
 		let box=document.querySelector('.edit-box:not(.nodisplay)');
 		if(box){
@@ -96,27 +108,30 @@
 				newUserSuccessHandler,
 				newUserErrorHandler,
 				genericErrorHandler,
-				);
+				true);
+		}else if(e.target.closest("#edit-user")){
+			event.preventDefault();
+			TPR_GEN.postWrapper(e.target,
+				editSingleSuccessHandler,
+				editSingleFailureHandler,
+				genericErrorHandler,
+				true)
 		}
 	});
 	document.addEventListener("click",function(e){
 		console.log(e);
-		//browse edit button
-		if(e.target.closest('input[type="button"]') && e.target.value=='Edit'){
-			let checkedUsers=e.target.closest('.tab-contents').querySelectorAll('input[type="checkbox"]:checked');
-			if(checkedUsers.length>1){
-				let ids=[];
-				checkedUsers.forEach(function(checkbox){
-					ids.push(checkbox.name.split("edit_")[1])
-				});
-				editMulti(ids);
-			}else if(checkedUsers.length>0){
-				let id=checkedUsers[0].name.split("edit_")[1];
-				editSingle(id);
+		//Edit users
+		if(e.target.closest('#user-table') && e.target.closest('tr')){
+			let input=e.target.closest('tr').querySelector('input');
+			if(input){
+				let userId=input.name.split('edit_')[1];
+				editSingle(userId);
 			}
 		}else if(e.target.classList.contains("edit-exit") ||
 		(document.querySelector(".edit-box:not(.nodisplay)") && !e.target.closest(".edit-box"))){
 			closeEditBox();
+		}else if(e.target.id=="toggle-inactive"){
+			toggleInative();
 		}
 	});
 	

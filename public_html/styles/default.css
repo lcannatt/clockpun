@@ -111,3 +111,12 @@ body{
 	text-align: center;
 	padding:1em;
 }
+/*  USER TABLE  */
+
+.interactive-table tr:not(:first-of-type):hover{
+	background-color:#eee !important
+}
+.interactive-table tr{
+	cursor: pointer;
+	border-bottom: black 1px solid;
+}

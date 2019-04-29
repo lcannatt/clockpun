@@ -129,18 +129,17 @@ class Database {
 	}
 	
 	public function getUsersForBrowse($start,$count,$sort){
-		// finds users for management in user management browse mode, limited to those with lower access than you (hr cant edit admin accounts)
-		$sql = "SELECT user_id,last_name, first_name, username, email FROM user WHERE flags<? ORDER BY ? LIMIT ?,?;";
-		return $this->db->preparedQuery($sql, "isii", array($this->user_accessNum, $sort, $start, $count));
+		// finds users for management in user management browse mode, limited to those with lower access than you.
+		// ATTENTION: $sort MUST NEVER COME FROM USER INPUT.
+		$sql = "SELECT user_id,last_name, first_name, username, email, MOD(flags,2) as active FROM user WHERE flags<? ORDER BY $sort DESC LIMIT ?,?;";
+		return $this->db->preparedQuery($sql, "iii", array($this->user_accessNum, $start, $count));
 	}
 	public function getUserGrants(){
 		//returns access this user is cabable of granting to other users. Hr can grant review+entry, admin can grant Hr, supreme can grant admin.
 		if($this->user_access['supreme']===1){
-			return ['review','hr','admin'];
+			return ['review','hr','admin','active'];
 		} else if($this->user_access['admin']===1){
-			return ['review','hr'];
-		} else if($this->user_access['hr']===1){
-			return ['review'];
+			return ['review','hr','active,'];
 		} else {
 			ErrorLog::LogInfo('300',$this->$user_username." tried to access user grants from $_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
 			return false; //This function should not have been called in the first place
@@ -156,12 +155,12 @@ class Database {
 		return $this->db->preparedQuery($sql,'',array());
 	}
 
-	public function getSecCreateUser(){
-		// returns whether logged in user is authorized to edit/create user accounts.
-		return $this->user_access['active'] && ($this->user_access['hr'] || $this->user_access['admin'] || $this->user_access['supreme']);
-	}
 	public function getSecPull(){
-		// returns whether logged in user can pull user data using the pull api
+		// returns security clearance for viewing user information other than their own.
+		return $this->user_access['active'] && ($this->user_access['admin'] || $this->user_access['supreme'] || $this->user_access['hr'] || $this->user_access['review']);
+	}
+	public function getSecEditUser(){
+		// returns security clearance for editing users
 		return $this->user_access['active'] && ($this->user_access['admin'] || $this->user_access['supreme']);
 	}
 	public function getIsValidManager($mgr){
@@ -189,6 +188,14 @@ class Database {
 		$access=$this->intToBitArray($result['flags']);
 		$result['flags']=$access;
 		return $result;
+	}
+	public function getUserTimeForDay($date){//expects date in form YYYY-MM-DD as string
+		$sql='SELECT time_id,TIME_FORMAT(TIME(time_start),\'%H:%i\') as start,TIME_FORMAT(TIME(time_end),\'%H:%i\') as end,cat_name,timestampdiff(MINUTE,time_start,time_end) as elapsed,comment FROM time_entered INNER JOIN category_defs ON category=cat_id WHERE user_id=? AND DATE(?)=DATE(time_start) ORDER BY time_start ASC;';
+		return $this->db->preparedQuery($sql,'is',array($this->user_id,$date));
+	}
+	public function getTimeCategories(){
+		$sql='SELECT cat_id,cat_name FROM category_defs';
+		return $this->db->preparedQuery($sql,'',array());
 	}
 
 	///////////////////////////////
@@ -224,9 +231,17 @@ class Database {
 		$result=$this->db->preparedQuery($sql2,'sssssi',array($username,$pwd,$fname,$lname,$email,$userID));
 		return $result?$userID:false;
 	}
+	public function putUpdateUser($userID,$lname,$fname,$email,$mgr,$newAccess){
+		//update user account from admin edit
+		$flags=$this->accessToInt($newAccess);
+		$sql="UPDATE user SET first_name=?,last_name=?,email=?,boss_id=?,flags=? WHERE user_id=?";
+		return $this->db->preparedQuery($sql,'sssiis',array($lname,$fname,$email,$mgr,$flags,$userID));
+
+	}
 	public function putResetPassword($userID,$token){
 		$sql="UPDATE user SET recovery_code=?,password='' WHERE user_id=?";
 		$result=$this->db->preparedQuery($sql,'si',array($token,$userID));
 		return $result;
 	}
+
 }

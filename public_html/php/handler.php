@@ -43,7 +43,7 @@ $handler->register('/^review$/',function($vars){
 });
 $handler->register('/^manage$/',function($vars){
 	$db=Database::getDB();
-	if($db->getSecCreateUser()){
+	if($db->getSecEditUser()){
 		require_once 'pc_manage.php';
 		p_createUserManagement();
 	}else{
@@ -100,8 +100,9 @@ $handler->register('/^pull$/',function($vars){
 $handler->register('/^edit-user$/',function($vars){
 	if($_SERVER['REQUEST_METHOD']=='POST'){
 		$db=Database::getDB();
-		if($db->getSecEdit()){
+		if($db->getSecEditUser()){
 			require_once 'api_userdata.php';
+			api_edit();
 		}else{
 			p_create403('Error 403: Forbidden');
 		}

@@ -45,8 +45,52 @@ function api_editSingle(){
 		}
 	}else{
 		//We're looking at a full user update. Validate inputs:
-		tpr_asyncError('User editing is not built yet');
-	}
-	
 
+		//Copy+pasted from create_user.php
+		//TO DO: Unifiy this validation so there's no copy pasted code.
+		$fname=TPR_Validator::getPostParam('fname');
+		if(!$fname || !TPR_Validator::isValidName($fname)){
+			tpr_asyncError('Please enter a valid first name.');
+		}
+		$lname=TPR_Validator::getPostParam('lname');
+		if(!$lname || !TPR_Validator::isValidName($lname)){
+			tpr_asyncError('Please enter a valid last name.');
+		}
+		$email=TPR_Validator::getPostParam('email');
+		//Note: Checking the length of the string this way is a little hacky and wont work with unicode data.
+		//To do: enable unicode support.
+		if(!$email || !TPR_Validator::isValidEmail($email)||isset($email[64])){
+			tpr_asyncError('Please enter a valid email.');
+		}
+		$mgr=TPR_Validator::getPostParam('manager');
+		if($mgr!='-1' && (!TPR_Validator::isDigits($mgr) || !$db->getIsValidManager($mgr)) ){
+			tpr_asyncError('Not A Valid Manager.');
+		}
+		$grants=TPR_Validator::getPostParamMulti('grant');
+		//Set up grants. In this case, unlinke in create_user, the active grant is just pulled from the form.
+		$newAccess=$db->getEmptyPermissions();
+		$validGrants=$db->getUserGrants();
+		if($grants){
+			foreach($grants as $grant){
+				if(array_key_exists($grant,$newAccess) && in_array($grant,$validGrants)){
+					//ignore invalid grant attempts silently.
+					$newAccess[$grant]=1;
+				}
+			}
+		}
+		//if mgr is set and didnt cause a fail out, user gets time entry
+		if($mgr!='-1'){
+			$newAccess['entry']=1;
+		}
+		//Hooray, ready to update!
+		$success=$db->putUpdateUser($userId,$lname,$fname,$email,$mgr,$newAccess);
+		if($success){
+			tpr_asyncOK(['edit'=>$userId]);
+		}else{
+			tpr_asyncError('A Database error occured while updating user. Please note the time and contact your administrator.');
+		}
+	}
+}
+function api_edit(){
+	api_editSingle();
 }

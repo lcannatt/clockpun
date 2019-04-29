@@ -16,8 +16,8 @@ function p_createUserManagement(){
 	echo'<div class="tabs">
 			<div class="cf">
 				<div class="float-l">
-					<span class="tabLink" name="search">Search</span><!--
-					--><span class="tabLink" name="browse">Browse</span>
+					<span class="tabLink" name="browse">Browse</span><!--
+					--><span class="tabLink" name="search">Search</span>
 				</div>
 				<div class="float-r">
 					<span class="tabLink" name="new">Create New</span>
@@ -25,43 +25,46 @@ function p_createUserManagement(){
 			</div>
 		</div>';
 	//create contents
-	echo '<div class="tab-contents" id="search">
-			<div class="tab-info cf">
-				<h3>Type a name, username, or email to search for a user</h3>
-			</div>
-			<input type="text">
-		</div>
+	echo '
 		<div class="tab-contents" id="browse">
 			<div class="tab-info cf">
 				<span class="float-l">
-					<h3>Select any number to edit.</h3>
+					<h3>Select a user to edit.</h3>
 				</span>
 				<span class="float-r">
-					<input type="button" value="Edit">
+					<input type="button" id="toggle-inactive" value="Show Inactive">
+					<!--<input type="button" id="refresh-browse" value="Refresh"> Will activate this once the functionality is built-->
 				</span>
 			</div>
-			<table class="user-table">
+			<table id="user-table" class="interactive-table">
 				<tr>
-					<th></th>
+					<th class="nodisplay"></th>
 					<th>Last</th>
 					<th>First</th>
 					<th>Username</th>
 					<th>Email</th>
+					<th>Status</th>
 				</tr>';
 	//get userlist from db, populate:
 	$db=Database::getDB();
 	//start off sorted by last name
 	$userData=$db->getUsersForBrowse(0,20,'last_name');
 	foreach($userData as $user){
-		echo '<tr>
-					<td><input type="checkbox" name="edit_'.$user['user_id'].'"></td>
+		echo '<tr '.($user['active']?'class-"user-active"':'class="nodisplay user-inactive"').'>
+					<td class="nodisplay"><input type="hidden" name="edit_'.$user['user_id'].'"></td>
 					<td>'.$user['last_name'].'</td>
 					<td>'.$user['first_name'].'</td>
 					<td>'.$user['username'].'</td>
 					<td>'.$user['email'].'</td>
+					<td>'.($user['active']?'Active':'Inactive').'</td>
 				</tr>';
 	}
 	echo '</table></div>
+		<div class="tab-contents" id="search">
+			<div class="tab-info cf">
+				<h3>Sorry, this feature is not built yet.</h3>
+			</div>
+		</div>
 		<div class="tab-contents" id="new">
 			<div class="tab-info cf">
 				<h3>Create a new user account</h3>
@@ -72,7 +75,7 @@ function p_createUserManagement(){
 		</div>
 		</div>';
 	p_createEditSingle($db);
-	p_createEditMulti($db);
+	// p_createEditMulti($db);
 	echo '<script type="text/javascript" src="'; echo sp_js("tpr").'"></script>';
 	echo '<script type="text/javascript" src="'; echo sp_js("cp_common").'"></script>';
 	echo '<script type="text/javascript" src="'; echo sp_js("manage").'"></script>';
@@ -84,13 +87,13 @@ function p_newUserForm($db){
 	echo'<form id="new-user" action="/create-user" method="post">
 			<table class="table-form"><tbody>
 				<tr>
-					<td><label for="n_fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="n_fname"></td>
+					<td><label for="n_fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="n_fname"/></td>
 				</tr>
 				<tr>
-					<td><label for="n_lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="n_lname"></td>
+					<td><label for="n_lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="n_lname"/></td>
 				</tr>
 				<tr>
-					<td><label for="n_email">Email</label></td><td colspan="2"><input type="text" name="email" id="n_email"></td>
+					<td><label for="n_email">Email</label></td><td colspan="2"><input type="text" name="email" id="n_email"/></td>
 				</tr>
 				<tr>
 					<td>Roles</td>';
@@ -101,7 +104,7 @@ function p_newUserForm($db){
 			if($i>0){
 				echo '<td></td>';
 			}
-			echo '<td><input type="checkbox" name="grant[]" id="n_grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="n_grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
+			echo '<td><input type="checkbox" name="grant[]" id="n_grant_'.$grants[$i].'" value="'.$grants[$i].'"/></td><td><label for="n_grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
 			if($i<count($grants)-1){
 				echo '<tr>';
 			}
@@ -135,16 +138,16 @@ function p_createEditSingle($db){
 	echo '		<form id="edit-user" action="/edit-user" method="post">
 					<table class="table-form"><tbody>
 						<tr>
-							<td><label for="s_fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="s_fname"></td><td><input type="button" name="resetpw" value="Reset Password"></td>
+							<td><label for="s_fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="s_fname"></td><td><input type="button" name="resetpw" value="Reset Password"/></td>
 						</tr>
 						<tr>
-							<td><label for="s_lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="s_lname"></td>
+							<td><label for="s_lname">Last Name</label></td><td colspan="2"><input type="text" name="lname" id="s_lname"/></td>
 						</tr>
 						<tr>
-							<td><label for="s_email">Email</label></td><td colspan="2"><input type="text" name="email" id="s_email"></td>
+							<td><label for="s_email">Email</label></td><td colspan="2"><input type="text" name="email" id="s_email"/></td>
 						</tr>
 						<tr>
-							<td><label for="s_grant_active">Active</label></td><td><input type="checkbox" name="grant[]" id="s_grant_active" value="active"></td>
+							<td><label for="s_grant_active">Active</label></td><td><input type="checkbox" name="grant[]" id="s_grant_active" value="active"/></td>
 						</tr>
 						<tr>
 							<td>Roles</td>';
@@ -155,7 +158,7 @@ function p_createEditSingle($db){
 			if($i>0){
 				echo '<td></td>';
 			}
-			echo '<td><input type="checkbox" name="grant[]" id="s_grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="s_grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
+			echo '<td><input type="checkbox" name="grant[]" id="s_grant_'.$grants[$i].'" value="'.$grants[$i].'"/></td><td><label for="s_grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
 			if($i<count($grants)-1){
 				echo '<tr>';
 			}
@@ -173,7 +176,7 @@ function p_createEditSingle($db){
 	}		
 	echo'					</select></td>
 						</tr>
-						<tr><td colspan="3"><input type="submit" value="Save"></input></td></tr>
+						<tr><td colspan="3"><input type="submit" value="Save"/></input></td></tr>
 					</tbody></table>
 				</form>
 			</div>
@@ -199,7 +202,7 @@ function p_createEditMulti($db){
 			if($i>0){
 				echo '<td></td>';
 			}
-			echo '<td><input type="checkbox" name="grant[]" id="m_grant_'.$grants[$i].'" value="'.$grants[$i].'"></td><td><label for="m_grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
+			echo '<td><input type="checkbox" name="grant[]" id="m_grant_'.$grants[$i].'" value="'.$grants[$i].'"/></td><td><label for="m_grant_'.$grants[$i].'">'.$grants[$i].'</td></tr>';
 			if($i<count($grants)-1){
 				echo '<tr>';
 			}
@@ -217,7 +220,7 @@ function p_createEditMulti($db){
 	}		
 	echo'				</select></td>
 					</tr>
-					<tr><td colspan="3"><input type="submit" value="Save"></input></td></tr>
+					<tr><td colspan="3"><input type="submit" value="Save"/></input></td></tr>
 				</tbody></table>
 			</form>
 		</div>';

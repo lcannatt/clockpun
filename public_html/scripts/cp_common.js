@@ -39,7 +39,7 @@ var CP_POPUP = function(){
 	}
 	function initPopupHandler(){
 		document.addEventListener("click",function(e){
-			if(e.target.id=='popup-exit' || !e.target.closest('#popup')){
+			if(e.target.id=='popup-exit'){
 				//delete the popup if it's closed or clicked out of.
 				let popup=document.querySelector('#popup');
 				if(popup){

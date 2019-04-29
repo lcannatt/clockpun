@@ -31,3 +31,44 @@ CREATE TABLE `clockpun_db`.`user_devices` (
   `user_id` INT(11) NULL,
   `last_login` DATETIME NULL,
   PRIMARY KEY (`token_id`));
+
+CREATE TABLE `clockpun_db`.`time_entered` (
+  `time_id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `time_start` DATETIME NULL,
+  `time_end` DATETIME NULL,
+  `category` INT NULL,
+  `comment` VARCHAR(150) NULL,
+  PRIMARY KEY (`time_id`))
+COMMENT = 'tracks time entered by users';
+
+CREATE TABLE `clockpun_db`.`category_defs` (
+  `cat_id` INT NOT NULL AUTO_INCREMENT,
+  `cat_name` VARCHAR(45) NULL,
+  PRIMARY KEY (`cat_id`))
+COMMENT = 'General purpose category definitions table';\
+
+ALTER TABLE `clockpun_db`.`time_entered` 
+ADD INDEX `User_idx` (`user_id` ASC);
+ALTER TABLE `clockpun_db`.`time_entered` 
+ADD CONSTRAINT `fk_timeUser`
+  FOREIGN KEY (`user_id`)
+  REFERENCES `clockpun_db`.`user` (`user_id`)
+  ON DELETE CASCADE
+  ON UPDATE CASCADE;
+
+ALTER TABLE `clockpun_db`.`time_entered` 
+ADD INDEX `fk_timeCat_idx` (`category` ASC);
+ALTER TABLE `clockpun_db`.`time_entered` 
+ADD CONSTRAINT `fk_timeCat`
+  FOREIGN KEY (`category`)
+  REFERENCES `clockpun_db`.`category_defs` (`cat_id`)
+  ON DELETE CASCADE
+  ON UPDATE CASCADE;
+
+--LOCAL COPY ONLY:
+INSERT INTO category_defs (cat_name) VALUES ('Work'),('PTO'),('Home Office'),('Training');
+INSERT INTO time_entered (user_id,time_start,time_end,category,comment) 
+VALUES (1,timestampadd(HOUR,-1,CURRENT_TIMESTAMP()),CURRENT_TIMESTAMP(),1,'working'),
+(1,timestampadd(HOUR,-4,CURRENT_TIMESTAMP()),timestampadd(HOUR,-1,CURRENT_TIMESTAMP()),1,'working'),
+(1,timestampadd(HOUR,-5,CURRENT_TIMESTAMP()),timestampadd(HOUR,-4,CURRENT_TIMESTAMP()),4,'training');
