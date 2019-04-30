@@ -1,0 +1,7 @@
+{
+    "name": "clockme",
+    "short_name": "clockme",
+    "theme_color": "#806394",
+    "background_color": "#806394",
+    "display": "standalone"
+}

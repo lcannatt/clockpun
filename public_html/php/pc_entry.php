@@ -27,7 +27,7 @@ function p_createTimeTableForDate($date=null){
 	}
 	echo '<table id="time-history" class="interactive-table">
 				<tbody>
-					<tr>
+					<tr class="header-row">
 						<th>Time</th>
 						<th>Hours</th>
 						<th>Category</th>
@@ -44,11 +44,9 @@ function p_createTimeTableForDate($date=null){
 						<td>' . $time['comment'] . '</td>
 					</tr>';
 	}
-	echo'			<tr>
-						<td><input type="button" value="Add New Entry" id="new-time"/></td>
-					</tr>
-				</tbody>
-			</table>';
+	echo'		</tbody>
+			</table>
+			<input type="button" value="Add New Entry" id="new-time"/>';
 }
 
 function p_createEditTimeDialog(){
@@ -80,8 +78,8 @@ function p_createEditTimeDialog(){
 					<td><textarea id="comments" name="comments"></textarea></td>
 				</tr>
 				<tr>
-					<td><input type="button" value="Save"/></td>
-					<td><input type="button" value="Delete"/></td>
+					<td><input type="button" id="save" value="Save"/></td>
+					<td><input type="button" id="delete" value="Delete"/></td>
 				</tr>
 			</tbody>
 		</table>

@@ -103,6 +103,18 @@ class Database {
 			'admin'=>0,
 			'supreme'=>0];
 	}
+
+	/*
+	 * Returns the id of the last inserted row.
+	 *
+	 * @return false on failure, lastid on success
+	 */
+	public function getLastInsertID() {
+		$result = $this->db->preparedQuery("SELECT LAST_INSERT_ID() as id");
+		return ($result===false)?false:$result[0]['id'];
+	}
+
+	//  SECURITY/AUTHENTICATION  //
 	public function authenticateUser($username, $token) {
 		$sql = "SELECT user_id, username, last_name, first_name, email, flags from user where user.user_id = (select user_id from user_devices where token=?) AND user.username=?";
 		$results = $this->db->preparedQuerySingleRow($sql, "ss", array($token, $username));
@@ -127,7 +139,20 @@ class Database {
 		$results = $this->db->preparedQuery($sql, "s", array($usr));
 		return $results===false?false:(sizeof($results)!==1?false:$results[0]);
 	}
-	
+	public function getSecPull(){
+		// returns security clearance for viewing user information other than their own.
+		return $this->user_access['active'] && ($this->user_access['admin'] || $this->user_access['supreme'] || $this->user_access['hr'] || $this->user_access['review']);
+	}
+	public function getSecEditUser(){
+		// returns security clearance for editing users
+		return $this->user_access['active'] && ($this->user_access['admin'] || $this->user_access['supreme']);
+	}
+	public function getSecEntry(){
+		//returns security clearance for time entry
+		return $this->user_access['active'] && $this->user_access['entry'];
+	}
+
+	//  GENERAL DATA GETTING  //
 	public function getUsersForBrowse($start,$count,$sort){
 		// finds users for management in user management browse mode, limited to those with lower access than you.
 		// ATTENTION: $sort MUST NEVER COME FROM USER INPUT.
@@ -154,15 +179,7 @@ class Database {
 		$sql="SELECT user_id,CONCAT(first_name,' ',last_name) as name FROM user WHERE user.flags%2=1 AND FLOOR(user.flags/4)%2=1 AND user_id != 1;";
 		return $this->db->preparedQuery($sql,'',array());
 	}
-
-	public function getSecPull(){
-		// returns security clearance for viewing user information other than their own.
-		return $this->user_access['active'] && ($this->user_access['admin'] || $this->user_access['supreme'] || $this->user_access['hr'] || $this->user_access['review']);
-	}
-	public function getSecEditUser(){
-		// returns security clearance for editing users
-		return $this->user_access['active'] && ($this->user_access['admin'] || $this->user_access['supreme']);
-	}
+	
 	public function getIsValidManager($mgr){
 		// checks if the given user ID is capable of being assigned manager duties. (active, review time access)
 		$sql="SELECT user_id FROM user WHERE user_id=? AND user.flags%2=1 AND FLOOR(user.flags/4)%2=1";
@@ -190,12 +207,20 @@ class Database {
 		return $result;
 	}
 	public function getUserTimeForDay($date){//expects date in form YYYY-MM-DD as string
-		$sql='SELECT time_id,TIME_FORMAT(TIME(time_start),\'%H:%i\') as start,TIME_FORMAT(TIME(time_end),\'%H:%i\') as end,cat_name,timestampdiff(MINUTE,time_start,time_end) as elapsed,comment FROM time_entered INNER JOIN category_defs ON category=cat_id WHERE user_id=? AND DATE(?)=DATE(time_start) ORDER BY time_start ASC;';
+		$sql='SELECT time_id,TIME_FORMAT(TIME(time_start),\'%H:%i\') as start,TIME_FORMAT(TIME(time_end),\'%H:%i\') as end,cat_name,timestampdiff(MINUTE,time_start,time_end) as elapsed,comment FROM time_entered LEFT JOIN category_defs ON category=cat_id WHERE user_id=? AND DATE(?)=DATE(time_start) ORDER BY time_start ASC;';
 		return $this->db->preparedQuery($sql,'is',array($this->user_id,$date));
 	}
 	public function getTimeCategories(){
 		$sql='SELECT cat_id,cat_name FROM category_defs';
 		return $this->db->preparedQuery($sql,'',array());
+	}
+	public function getEmptyTime(){
+		$sql='SELECT time_id,time_start from time_entered where user_id=? and time_start is NULL LIMIT 1';
+		return $this->db->preparedQuerySingleRow($sql,'i',array($this->user_id));
+	}
+	public function getTimeData($id){
+		$sql='SELECT time_id,time_start,time_end,category,comment FROM time_entered WHERE time_id=? AND user_id=?';
+		return $this->db->preparedQuerySingleRow($sql,'ii',array($id,$this->user_id));
 	}
 
 	///////////////////////////////
@@ -242,6 +267,35 @@ class Database {
 		$sql="UPDATE user SET recovery_code=?,password='' WHERE user_id=?";
 		$result=$this->db->preparedQuery($sql,'si',array($token,$userID));
 		return $result;
+	}
+	public function putEmptyTime(){
+		//Checks for an existing empty time for user
+		//If one is present, return ID, otherwise create a new one, return ID.
+		$empty=$this->getEmptyTime();
+		if($empty){
+			$sql='UPDATE time_entered SET time_start=CURRENT_TIMESTAMP() where time_id=?';
+			$result=$this->db->preparedQuery($sql,'i',array($empty['time_id']));
+			if(!$result){
+				return false;
+			}
+			return $empty;
+		}else{
+			$sql='INSERT INTO time_entered (user_id,time_start) VALUES (?,null)';
+			$result=$this->db->preparedQuery($sql,'i',array($this->user_id));
+			if($result){
+				ErrorLog::logInfo(504,'recursing');
+				return $this->putEmptyTime();
+			}
+		}
+	}
+	public function putClearTime($timeID){
+		//clears out a time entry for recycling (user deleted)
+		$sql='UPDATE time_entered SET time_start=null,time_end=null WHERE id=?';
+		return $this->db->preparedQuery($sql,'i',array($timeID));
+	}
+	public function putUpdateTime($timeID,$start,$end,$category,$comment){
+		$sql='UPDATE time_entered SET time_start=?,time_end=?,category=?,comment=? WHERE time_id=? AND user_id=?';
+		return $this->db->preparedQuery($sql,'ssisii',array($start,$end,$category,$comment,$timeID,$this->user_id));
 	}
 
 }

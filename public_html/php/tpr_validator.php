@@ -44,7 +44,9 @@ class TPR_Validator {
 	public static function isMinLength($value, $len) {
 		return isset($value[$len-1]);
 	}
-
+	public static function isDateString($value){
+		return preg_match('/^\d{4}-\d{2}-\d{2}$/',$value);
+	}
 	public static function getReqStr($array, $key, $minlen = 0, $maxlen = 100000, $standin = "") {
 		$value = $array[$key]??$standin;
 		

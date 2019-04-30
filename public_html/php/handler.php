@@ -108,6 +108,35 @@ $handler->register('/^edit-user$/',function($vars){
 		}
 	}
 });
+$handler->register('/^get-user-time$/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getSecEntry()){
+			require_once 'api_entrydata.php';
+			api_getDayTime();
+		}else{
+			p_create403('Error 403: Forbidden');
+		}
+	}
+});
+$handler->register('/^new-time$/',function($vars){
+	$db=Database::getDB();
+	if($db->getSecEntry()){
+		require_once 'api_entrydata.php';
+		api_newTimeEntry();
+	}
+});
+$handler->register('/^get-time$/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getSecEntry()){
+			require_once 'api_entrydata.php';
+			api_getOneTime();
+		}else{
+			p_create403('Error 403: Forbidden');
+		}
+	}
+});
 //do the actual handling
 if(!($handler->handle($path))) {
 	p_create404();
