@@ -113,6 +113,9 @@ class Database {
 		$result = $this->db->preparedQuery("SELECT LAST_INSERT_ID() as id");
 		return ($result===false)?false:$result[0]['id'];
 	}
+	public function getError(){
+		return $this->db->getError();
+	}
 
 	//  SECURITY/AUTHENTICATION  //
 	public function authenticateUser($username, $token) {
@@ -215,7 +218,7 @@ class Database {
 		return $this->db->preparedQuery($sql,'',array());
 	}
 	public function getEmptyTime(){
-		$sql='SELECT time_id,time_start from time_entered where user_id=? and time_start is NULL LIMIT 1';
+		$sql='SELECT time_id from time_entered where user_id=? and time_start is NULL LIMIT 1';
 		return $this->db->preparedQuerySingleRow($sql,'i',array($this->user_id));
 	}
 	public function getTimeData($id){
@@ -273,14 +276,9 @@ class Database {
 		//If one is present, return ID, otherwise create a new one, return ID.
 		$empty=$this->getEmptyTime();
 		if($empty){
-			$sql='UPDATE time_entered SET time_start=CURRENT_TIMESTAMP() where time_id=?';
-			$result=$this->db->preparedQuery($sql,'i',array($empty['time_id']));
-			if(!$result){
-				return false;
-			}
 			return $empty;
 		}else{
-			$sql='INSERT INTO time_entered (user_id,time_start) VALUES (?,null)';
+			$sql='INSERT INTO time_entered (user_id) VALUES (?)';
 			$result=$this->db->preparedQuery($sql,'i',array($this->user_id));
 			if($result){
 				ErrorLog::logInfo(504,'recursing');
@@ -290,8 +288,8 @@ class Database {
 	}
 	public function putClearTime($timeID){
 		//clears out a time entry for recycling (user deleted)
-		$sql='UPDATE time_entered SET time_start=null,time_end=null WHERE id=?';
-		return $this->db->preparedQuery($sql,'i',array($timeID));
+		$sql='UPDATE time_entered SET time_start=null,time_end=null,category=null,comment=null WHERE time_id=? AND user_id=?';
+		return $this->db->preparedQuery($sql,'ii',array($timeID,$this->user_id));
 	}
 	public function putUpdateTime($timeID,$start,$end,$category,$comment){
 		$sql='UPDATE time_entered SET time_start=?,time_end=?,category=?,comment=? WHERE time_id=? AND user_id=?';

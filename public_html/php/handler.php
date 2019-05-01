@@ -137,6 +137,28 @@ $handler->register('/^get-time$/',function($vars){
 		}
 	}
 });
+$handler->register('/^update-time$/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getSecEntry()){
+			require_once 'api_entrydata.php';
+			api_updateTime();
+		}else{
+			p_create403('Error 403: Forbidden');
+		}
+	}
+});
+$handler->register('/^delete-time$/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getSecEntry()){
+			require_once 'api_entrydata.php';
+			api_deleteTime();
+		}else{
+			p_create403('Error 403: Forbidden');
+		}
+	}
+});
 //do the actual handling
 if(!($handler->handle($path))) {
 	p_create404();

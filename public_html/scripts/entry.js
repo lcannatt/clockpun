@@ -24,7 +24,9 @@
 				return 31
 		}
 	}
-
+	function hrsMinFromDate(date){
+		return (date.getHours()<10?'0':'')+date.getHours()+":"+(date.getMinutes()<10?'0':'')+date.getMinutes();
+	}
 	/**
 	 * Check if a date is valid
 	 * @link https://stackoverflow.com/a/1433119/1293256
@@ -49,13 +51,13 @@
 			}
 		);
 		//now add the new data
-		let table=document.getElementById('time-history');
-		if(!table){
+		let tbody=document.querySelector('#time-history tbody');
+		if(!tbody){
 			console.log("Error updating table, document missing expected node");
 		}
 		for (let timeRow in obj) {
 			if (obj.hasOwnProperty(timeRow)) {
-				table.appendChild(createRow(obj[timeRow]));
+				tbody.appendChild(createRow(obj[timeRow]));
 			}
 		}
 		function createRow(data){
@@ -82,7 +84,7 @@
 			return row;
 		}
 	}
-	function dateChangeFailHandler(xhttp){
+	function genericFailureHandler(xhttp){
 		let obj=JSON.parse(xhttp.responseText);
 		CP_POPUP.makePopup(obj.error,"Error",0);
 	}
@@ -90,12 +92,11 @@
 		CP_POPUP.makePopup('Error communicating with server, please check your internet connection','Error',0)
 	}
 	function updateManager(){
-		let test=new Date(dateInput);
 		let form=TPR_GEN.newElement('form',{'action':'/get-user-time','method':'POST'});
 		form.appendChild(TPR_GEN.newElement('input',{'name':'date','value':dateInput.value}));
 		TPR_GEN.postWrapper(form,
 			dateChangeOkHandler,
-			dateChangeFailHandler,
+			genericFailureHandler,
 			genericErrorHandler,
 			false);
 	}
@@ -106,14 +107,27 @@
 		}
 	});
 	//Make the time edit form visible whenever a time needs to be edited, handle changing which one is being edited
-	
-	function newTime(){
+	function reset(form){//General purpose form clearing tool
+		form.reset();
+		form.querySelectorAll('input[type="hidden"]').forEach(
+			function(e){
+				e.parentElement.removeChild(e);
+			}
+		);
+	}
+	function closeEdit(form){//Reset and hide the time details form, add back the new entry button
+		reset(form);
+		form.classList.add('nodisplay');
+		document.getElementById('new-time').classList.remove('nodisplay');
+	}
+	function newTime(){//Get time entry id from db, initialize the time details
 		function newTimeOKHandler(xhttp){
 			let obj= JSON.parse(xhttp.responseText);
 			let form=document.getElementById('edit-time');
 			if(form){
-				form.reset();
+				reset(form);
 				form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':obj.id,'name':'timeID'}))
+				form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':dateInput.value,'name':'date'}))
 				form.classList.remove('nodisplay');
 			}
 			let newTime=document.getElementById('new-time');
@@ -123,7 +137,7 @@
 		}
 		TPR_GEN.getWrapper('/new-time',
 			newTimeOKHandler,
-			dateChangeFailHandler,
+			genericFailureHandler,
 			genericErrorHandler
 		)
 	}
@@ -132,11 +146,31 @@
 			let obj=JSON.parse(xhttp.responseText);
 			let form=document.getElementById('edit-time');
 			if(form){
-				form.reset();
-				form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':obj.id,'name':'timeID'}))
+				reset(form);
+				form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':obj.time_id,'name':'timeID'}))
+				form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':dateInput.value,'name':'date'}))
 				form.classList.remove('nodisplay');
 			}
-			document.getElementById('start').value=obj.time_start;
+			//input the db values into the form
+			//start time
+			let startDate=new Date(obj.time_start);
+			let valueString=hrsMinFromDate(startDate);
+			document.getElementById('start').value=valueString;
+			//end time
+			if(obj.time_end){
+				let endDate=new Date(obj.time_end);
+				valueString=hrsMinFromDate(endDate);
+				document.getElementById('end').value=valueString;
+			}
+			//category
+			if(obj.category){
+				document.getElementById('category').value=obj.category;
+			}
+			//comments
+			if(obj.comment){
+				document.getElementById('comments').value=obj.comment;
+			}
+			//hide the new entry button while edit is open
 			let newTime=document.getElementById('new-time');
 			if(newTime){
 				newTime.classList.add('nodisplay');
@@ -146,15 +180,50 @@
 		form.appendChild(TPR_GEN.newElement('input',{'name':'id','value':id}));
 		TPR_GEN.postWrapper(form,
 			getTimeHandler,
-			dateChangeFailHandler,
+			genericFailureHandler,
 			genericErrorHandler,
 			true);
 	}
 	function saveTime(){
+		var form=document.getElementById('edit-time');
+		function saveTimeHandler(xhttp){
+			let obj=JSON.parse(xhttp.responseText);
+			let localID=form.querySelector('input[name="timeID"]').value;
+			if(obj.id==localID){
+				closeEdit(form);
+				updateManager();
+			}else{
+				CP_POPUP.makePopup('A synchronization error occurred, please try again','Error',0);
+			}
+		}
+		TPR_GEN.postWrapper(form,
+			saveTimeHandler,
+			genericFailureHandler,
+			genericErrorHandler,
+			true);
 		console.log('saving time');
 	}
 	function deleteTime(){
-		console.log('deleting time');
+		let form=TPR_GEN.newElement('form',{'action':'/delete-time','method':'POST'});
+		var id=document.querySelector('#edit-time input[name="timeID"]');
+		form.appendChild(id.cloneNode());
+
+		function deleteOKHandler(xhttp){
+			let obj=JSON.parse(xhttp.responseText);
+			if(obj.time_id==id.value){
+				let editForm=document.getElementById('edit-time')
+				closeEdit(editForm);
+				updateManager();
+			}
+		}
+		TPR_GEN.postWrapper(form,
+			deleteOKHandler,
+			genericFailureHandler,
+			genericErrorHandler,
+			true);
+	}
+	function timeToNow(id){
+		document.getElementById(id).value=hrsMinFromDate(new Date());
 	}
 	document.addEventListener("click",function(e){
 		if(e.target.closest('#new-time')){
@@ -170,9 +239,28 @@
 			let id=e.target.closest("tr").querySelector('input').value;
 			editTime(id);
 		}
+		if(e.target.id=='startNow'){
+			timeToNow('start');
+		}
+		if(e.target.id=='endNow'){
+			timeToNow('end');
+		}
 	});
-	//Handle requests to server for new time input id on Add New Entry click
-
-
+	updateManager();
+	function timerAnimationLooper(colon){
+		let activeClocks=document.querySelectorAll('.timer');
+		activeClocks.forEach(function(e){
+			let startTime=e.value
+			let diff=Date.now()-startTime;
+			let timecode=minToTime(~~(diff/(1000*60)));
+			if(!colon){
+				timecode=timecode.split(':').join(' ')
+			}
+			e.innerText=timecode;
+		});
+		let nextColon=!colon;
+		setTimeout(timerAnimationLooper.bind(null,nextColon),1000);
+	}
+	timerAnimationLooper(true);
 	CP_POPUP.initPopupHandler();
 })();

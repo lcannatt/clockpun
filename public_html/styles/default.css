@@ -50,6 +50,9 @@ body{
 	display:none;
 }
 /* tabbed content browsing */
+.tab-contents h1{
+	margin-top:0;
+}
 .tab-contents{
 	display:none;
 	background-color:#ddd;

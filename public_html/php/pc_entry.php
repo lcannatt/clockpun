@@ -7,9 +7,10 @@ function p_createTimeLogging(){
 	<div class="main">
 	<div class="wrapper">';
 	echo '	<div class="tab-contents active">
+			<h1>Log Time</h1>
 			<h3>Select a date</h3>
 			<input type="date" name="date" id="date" value="'.date('Y-m-d').'"/>
-			<h3>Enter Time</h3>';
+			<br><br>';
 			
 	p_createTimeTableForDate();
 	p_createEditTimeDialog();
@@ -46,23 +47,26 @@ function p_createTimeTableForDate($date=null){
 	}
 	echo'		</tbody>
 			</table>
+			<br>
 			<input type="button" value="Add New Entry" id="new-time"/>';
 }
 
 function p_createEditTimeDialog(){
 	$db=Database::getDB();
 	echo '
-	<form id="edit-time" class="nodisplay">
+	<form id="edit-time" action="/update-time" method="POST" class="nodisplay">
 	<h4>Time Details</h4>
 		<table>
 			<tbody>
 				<tr>
 					<td><label for="start">Start Time</label></td>
 					<td><input type="time" id="start" name="start"/></td>
+					<td><input type="button" id="startNow" value="Now"/></td>
 				</tr>
 				<tr>
 					<td><label for="end">End Time</label></td>
 					<td><input type="time" id="end" name="end"/></td>
+					<td><input type="button" id="endNow" value="Now"/></td>
 				</tr>
 				<tr>
 					<td><label for="category">Category</label></td>
@@ -75,7 +79,7 @@ function p_createEditTimeDialog(){
 				</tr>
 				<tr>
 					<td><label for="comments">Comments</label></td>
-					<td><textarea id="comments" name="comments"></textarea></td>
+					<td colspan="2"><textarea id="comments" name="comments"></textarea></td>
 				</tr>
 				<tr>
 					<td><input type="button" id="save" value="Save"/></td>

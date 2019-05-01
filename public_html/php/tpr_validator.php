@@ -44,8 +44,11 @@ class TPR_Validator {
 	public static function isMinLength($value, $len) {
 		return isset($value[$len-1]);
 	}
-	public static function isDateString($value){
-		return preg_match('/^\d{4}-\d{2}-\d{2}$/',$value);
+	public static function isDateString($value){//not infallible but will weed out most, SQL wont accept an invalid date anyways.
+		return preg_match('/^(19|20)\d{2}-[01]\d-[0-3]\d$/',$value);
+	}
+	public static function isTimeString($value){//not perfect but enforces format, SQL will void any invalid times
+		return preg_match('/^[0-2]\d:[0-5]\d$/',$value);
 	}
 	public static function getReqStr($array, $key, $minlen = 0, $maxlen = 100000, $standin = "") {
 		$value = $array[$key]??$standin;
