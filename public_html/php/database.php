@@ -225,6 +225,39 @@ class Database {
 		$sql='SELECT time_id,time_start,time_end,category,comment FROM time_entered WHERE time_id=? AND user_id=?';
 		return $this->db->preparedQuerySingleRow($sql,'ii',array($id,$this->user_id));
 	}
+	public function getOverviewData($date){//gets a weeks worth of overview data given an input date for user's suboordinates
+		$sql='SELECT user.user_id
+			,first_name
+			,last_name
+			,cat_name
+			,SUM(timestampdiff(MINUTE,time_start,time_end)) as minutes
+		FROM time_entered
+			LEFT JOIN user 
+			on user.user_id=time_entered.user_id
+			LEFT JOIN category_defs
+			on time_entered.category=category_defs.cat_id
+		WHERE
+			boss_id=?
+			AND (WEEK(time_start)=WEEK(?)
+				OR WEEK(?)=1 AND WEEK(time_start)=53)
+		GROUP BY
+			user_id,category
+		ORDER BY 
+			last_name ASC, first_name ASC ,category ASC';
+		$result=$this->db->preparedQuery($sql,'iss',array($this->user_id,$date,$date));
+		if(!$result){
+			return false;
+		}
+		//format the return data to be usable
+		$formatted=[];
+		forEach($result as $row){
+			$name=$row['first_name'].' '.$row['last_name'];
+			$formatted[$name]['user_id']=$row['user_id'];
+			$formatted[$name]['time'][$row['cat_name']]=$row['minutes'];
+		}
+		return $formatted;
+		
+	}
 
 	///////////////////////////////
 	//////////// PUTS /////////////
