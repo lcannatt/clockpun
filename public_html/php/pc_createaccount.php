@@ -25,7 +25,8 @@ function p_createAccount($userData,$token){
 }
 
 function p_newUserForm($token,$userData){
-	echo'<form id="reg-form" action="/register" method="post">
+	global $lpre;
+	echo'<form id="reg-form" action="'.$lpre.'/register" method="post">
 				<input type="hidden" id="token" name="token" value="'.$token.'">
 					<table><tbody>
 						<tr>

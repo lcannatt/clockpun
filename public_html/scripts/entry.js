@@ -92,7 +92,7 @@
 		CP_POPUP.makePopup('Error communicating with server, please check your internet connection','Error',0)
 	}
 	function updateManager(){
-		let form=TPR_GEN.newElement('form',{'action':'/get-user-time','method':'POST'});
+		let form=TPR_GEN.newElement('form',{'action':'./get-user-time','method':'POST'});
 		form.appendChild(TPR_GEN.newElement('input',{'name':'date','value':dateInput.value}));
 		TPR_GEN.postWrapper(form,
 			dateChangeOkHandler,
@@ -135,7 +135,7 @@
 				newTime.classList.add('nodisplay');
 			}
 		}
-		TPR_GEN.getWrapper('/new-time',
+		TPR_GEN.getWrapper('./new-time',
 			newTimeOKHandler,
 			genericFailureHandler,
 			genericErrorHandler
@@ -176,7 +176,7 @@
 				newTime.classList.add('nodisplay');
 			}
 		}
-		let form=TPR_GEN.newElement('form',{'action':'/get-time','method':'POST'});
+		let form=TPR_GEN.newElement('form',{'action':'./get-time','method':'POST'});
 		form.appendChild(TPR_GEN.newElement('input',{'name':'id','value':id}));
 		TPR_GEN.postWrapper(form,
 			getTimeHandler,
@@ -204,7 +204,7 @@
 		console.log('saving time');
 	}
 	function deleteTime(){
-		let form=TPR_GEN.newElement('form',{'action':'/delete-time','method':'POST'});
+		let form=TPR_GEN.newElement('form',{'action':'./delete-time','method':'POST'});
 		var id=document.querySelector('#edit-time input[name="timeID"]');
 		form.appendChild(id.cloneNode());
 

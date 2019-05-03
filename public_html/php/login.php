@@ -36,9 +36,9 @@ if($db->putUserDevice($user['user_id'], $token)) {
 	// * 24 hours/day * 30 days
 	$timeout = time() + (2592000);
 	//set the username cookie
-	setcookie(USERNAME_COOKIE, $user['username'], $timeout, "/");
+	setcookie(USERNAME_COOKIE, $user['username'], $timeout, LOCAL_ROOT."/");
 	//set the login token cookie
-	setcookie(TOKEN_COOKIE, $token, $timeout, "/");
+	setcookie(TOKEN_COOKIE, $token, $timeout, LOCAL_ROOT."/");
 	//redirect us home
 	header("Location: ".sp_home());
 } else {

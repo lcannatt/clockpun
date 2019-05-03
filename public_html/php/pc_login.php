@@ -3,8 +3,9 @@ require_once 'pc_general.php';
 
 function p_createLogin(){
 	p_header();	
+	global $lpre;
 	echo '<div class="topContainer"><div class="topform">';
-	echo '<form action="./php/login.php" method="post"><table class="tg">
+	echo '<form action="'.$lpre.'/php/login.php" method="post"><table class="tg">
 		<tr>
 			<td><label>Username</label></td>
 			<td><input type="text" name="username" autocomplete="username"></td>

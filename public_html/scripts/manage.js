@@ -51,7 +51,7 @@
 		let form=editBox.querySelector('form');
 		form.disabled='true';
 		form.appendChild(newElement('input',{'name':'userid','type':'hidden','value':userId}))
-		let tempForm=newElement('form',{'action':'/pull','method':'POST'})
+		let tempForm=newElement('form',{'action':'./pull','method':'POST'})
 		tempForm.appendChild(newElement('input',{'name':'userid','value':userId}))
 		function pullOKHandler(xhttp){
 			let obj = JSON.parse(xhttp.responseText);

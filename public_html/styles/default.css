@@ -40,6 +40,7 @@ nav a:hover, nav .dropdown-button:hover{
 
 body{
 	margin:0;
+	font-family: sans-serif;
 }
 .main .wrapper{
 	margin:auto;
@@ -151,8 +152,45 @@ body{
 	background-color:lightyellow;
 }
 .mark-8{
-	display:none !important;
+	position:absolute;
+	z-index:10;
 	width:0;
+	height:inherit !important;
+	pointer-events: none;
 	border-left:1px solid #666;
 	margin-left:5em;
+}
+.bar-key{
+	display:inline-block;
+	height:1.5em;
+	width:24em;
+	border:1px solid #666;
+	border-radius: .2em;
+}
+.bar-key div{
+	width:6em;
+	height:100%;
+	display:inline-block;
+	padding:.2em;
+	text-align: center;
+	box-sizing: border-box;
+}
+.bar-key .mark-8{
+	margin-left:20em;
+}
+.hover-count{
+	position:absolute;
+	z-index:11;
+	width:inherit;
+	cursor:pointer;
+	height:inherit !important;
+	padding:.2em;
+	background-color:#0002;
+	color:white;
+	box-sizing: border-box;
+	text-align: center;
+	opacity:0;
+}
+.hover-count:hover{
+	opacity:1;
 }

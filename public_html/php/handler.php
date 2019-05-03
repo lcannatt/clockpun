@@ -8,7 +8,7 @@ require_once 'pc_general.php';
 
 //parse the request
 $path = parse_url($_SERVER["REQUEST_URI"])['path'];
-$path = substr($path, 1); //remove the prefix '/'
+$path = substr($path, 1+strlen(LOCAL_ROOT)); //remove the prefix '/'
 //instantiate a url handler
 $handler = new TPR_URLHandler();
 
@@ -56,8 +56,8 @@ $handler->register('/^logout$/', function($vars) {
 	unset($_COOKIE[TOKEN_COOKIE]);
 
 	//set cookie timeouts to an hour ago
-	$res = setcookie(USERNAME_COOKIE, '', time()-3600);
-	$res = setcookie(TOKEN_COOKIE, '', time()-3600);
+	$res = setcookie(USERNAME_COOKIE, '', time()-3600 , LOCAL_ROOT.'/');
+	$res = setcookie(TOKEN_COOKIE, '', time()-3600, LOCAL_ROOT.'/');
 
 	//redirect to the home page
 	header("Location: ".sp_home());
@@ -112,7 +112,7 @@ $handler->register('/^get-user-time$/',function($vars){
 	if($_SERVER['REQUEST_METHOD']=='POST'){
 		$db=Database::getDB();
 		if($db->getSecEntry()){
-			require_once 'api_entrydata.php';
+			require_once 'api_entryData.php';
 			api_getDayTime();
 		}else{
 			p_create403('Error 403: Forbidden');
@@ -122,7 +122,7 @@ $handler->register('/^get-user-time$/',function($vars){
 $handler->register('/^new-time$/',function($vars){
 	$db=Database::getDB();
 	if($db->getSecEntry()){
-		require_once 'api_entrydata.php';
+		require_once 'api_entryData.php';
 		api_newTimeEntry();
 	}
 });
@@ -130,7 +130,7 @@ $handler->register('/^get-time$/',function($vars){
 	if($_SERVER['REQUEST_METHOD']=='POST'){
 		$db=Database::getDB();
 		if($db->getSecEntry()){
-			require_once 'api_entrydata.php';
+			require_once 'api_entryData.php';
 			api_getOneTime();
 		}else{
 			p_create403('Error 403: Forbidden');
@@ -141,7 +141,7 @@ $handler->register('/^update-time$/',function($vars){
 	if($_SERVER['REQUEST_METHOD']=='POST'){
 		$db=Database::getDB();
 		if($db->getSecEntry()){
-			require_once 'api_entrydata.php';
+			require_once 'api_entryData.php';
 			api_updateTime();
 		}else{
 			p_create403('Error 403: Forbidden');
@@ -152,7 +152,7 @@ $handler->register('/^delete-time$/',function($vars){
 	if($_SERVER['REQUEST_METHOD']=='POST'){
 		$db=Database::getDB();
 		if($db->getSecEntry()){
-			require_once 'api_entrydata.php';
+			require_once 'api_entryData.php';
 			api_deleteTime();
 		}else{
 			p_create403('Error 403: Forbidden');

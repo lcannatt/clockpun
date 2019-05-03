@@ -53,8 +53,9 @@ function p_createTimeTableForDate($date=null){
 
 function p_createEditTimeDialog(){
 	$db=Database::getDB();
+	global $lpre;
 	echo '
-	<form id="edit-time" action="/update-time" method="POST" class="nodisplay">
+	<form id="edit-time" action="'.$lpre.'/update-time" method="POST" class="nodisplay">
 	<h4>Time Details</h4>
 		<table>
 			<tbody>

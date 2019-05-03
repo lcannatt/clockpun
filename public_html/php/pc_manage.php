@@ -84,7 +84,8 @@ function p_createUserManagement(){
 
 function p_newUserForm($db){
 	//creates the new user form
-	echo'<form id="new-user" action="/create-user" method="post">
+	global $lpre;
+	echo'<form id="new-user" action="'.$lpre.'/create-user" method="post">
 			<table class="table-form"><tbody>
 				<tr>
 					<td><label for="n_fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="n_fname"/></td>
@@ -129,13 +130,14 @@ function p_newUserForm($db){
 
 //Creates a blank form, front end will populate with the specific info
 function p_createEditSingle($db){
+	global $lpre;
 	echo '<div id="edit-single" class="edit-box nodisplay">
 			<div class="edit-header">
 				<span class="edit-title">Editing </span>
 				<div class="edit-exit float-r">[ X ]</div>
 			</div>
 			<div class="edit-body">';
-	echo '		<form id="edit-user" action="/edit-user" method="post">
+	echo '		<form id="edit-user" action="'.$lpre.'/edit-user" method="post">
 					<table class="table-form"><tbody>
 						<tr>
 							<td><label for="s_fname">First Name</label></td><td colspan="2"><input type="text" name="fname" id="s_fname"></td><td><input type="button" name="resetpw" value="Reset Password"/></td>
@@ -145,9 +147,6 @@ function p_createEditSingle($db){
 						</tr>
 						<tr>
 							<td><label for="s_email">Email</label></td><td colspan="2"><input type="text" name="email" id="s_email"/></td>
-						</tr>
-						<tr>
-							<td><label for="s_grant_active">Active</label></td><td><input type="checkbox" name="grant[]" id="s_grant_active" value="active"/></td>
 						</tr>
 						<tr>
 							<td>Roles</td>';
@@ -185,13 +184,14 @@ function p_createEditSingle($db){
 
 //Creates a blank form, front end will populate with specific data
 function p_createEditMulti($db){
+	global $lpre;
 	echo '<div id="edit-multi" class="edit-box nodisplay">
 			<div class="edit-header">
 				<span class="edit-title">Editing for</span>
 				<div class="edit-exit float-r">[ X ]</div>
 			</div>
 			<div class="edit-body">';
-	echo '		<form id="edit-multi" action="/edit-multi" method="post">
+	echo '		<form id="edit-multi" action="'.$lpre.'/edit-multi" method="post">
 					<table class="table-form"><tbody>
 						<tr>
 						<td>Roles</td>';
