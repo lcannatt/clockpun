@@ -167,7 +167,7 @@ class Database {
 		if($this->user_access['supreme']===1){
 			return ['review','hr','admin','active'];
 		} else if($this->user_access['admin']===1){
-			return ['review','hr','active,'];
+			return ['review','hr','active'];
 		} else {
 			ErrorLog::LogInfo('300',$this->$user_username." tried to access user grants from $_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
 			return false; //This function should not have been called in the first place
