@@ -123,3 +123,36 @@ body{
 	cursor: pointer;
 	border-bottom: black 1px solid;
 }
+
+/*  REVIEW TABLE */
+#review-data{
+	border-collapse: collapse;
+}
+.bar-container{
+	height:1.5em;
+	width:6em;
+	border:1px solid #666;
+	border-radius: .2em;
+}
+.bar-container div{
+	display:inline-block;
+	height:100%;
+}
+.Work{
+	background-color:lightcoral;
+}
+.Training{
+	background-color:lightgreen;
+}
+.PTO{
+	background-color:lightblue;
+}
+.Home-Office{
+	background-color:lightyellow;
+}
+.mark-8{
+	display:none !important;
+	width:0;
+	border-left:1px solid #666;
+	margin-left:5em;
+}

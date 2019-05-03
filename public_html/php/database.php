@@ -229,6 +229,7 @@ class Database {
 		$sql='SELECT user.user_id
 			,first_name
 			,last_name
+			,DAYOFWEEK(time_start) as weekday
 			,cat_name
 			,SUM(timestampdiff(MINUTE,time_start,time_end)) as minutes
 		FROM time_entered
@@ -241,9 +242,9 @@ class Database {
 			AND (WEEK(time_start)=WEEK(?)
 				OR WEEK(?)=1 AND WEEK(time_start)=53)
 		GROUP BY
-			user_id,category
+			user_id,weekday,category
 		ORDER BY 
-			last_name ASC, first_name ASC ,category ASC';
+			last_name ASC, first_name ASC, weekday ,category ASC';
 		$result=$this->db->preparedQuery($sql,'iss',array($this->user_id,$date,$date));
 		if(!$result){
 			return false;
@@ -253,7 +254,7 @@ class Database {
 		forEach($result as $row){
 			$name=$row['first_name'].' '.$row['last_name'];
 			$formatted[$name]['user_id']=$row['user_id'];
-			$formatted[$name]['time'][$row['cat_name']]=$row['minutes'];
+			$formatted[$name][$row['weekday']][$row['cat_name']]=$row['minutes'];
 		}
 		return $formatted;
 		
