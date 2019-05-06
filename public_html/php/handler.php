@@ -62,8 +62,8 @@ $handler->register('/^logout$/', function($vars) {
 	//redirect to the home page
 	header("Location: ".sp_home());
 });
-$handler->register('/^create-account\/(.+)/',function($vars){
-	$token=$vars[0];
+$handler->register('/^create-account$/',function($vars){
+	$token=$_GET['token'];
 	$db=Database::getDB();
 	if($db->getLoggedIn()){
 		p_create403('Error 403: Forbidden');

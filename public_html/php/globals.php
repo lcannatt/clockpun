@@ -55,5 +55,5 @@ function sp_manage(){
 }
 function sp_newUser($token){
 	global $lpre;
-	return $lpre . '/create-account/' . $token;
+	return $lpre . '/create-account?token=' . urlencode($token);
 }

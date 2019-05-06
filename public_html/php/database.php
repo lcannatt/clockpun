@@ -297,7 +297,7 @@ class Database {
 		//update user account from admin edit
 		$flags=$this->accessToInt($newAccess);
 		$sql="UPDATE user SET first_name=?,last_name=?,email=?,boss_id=?,flags=? WHERE user_id=?";
-		return $this->db->preparedQuery($sql,'sssiis',array($lname,$fname,$email,$mgr,$flags,$userID));
+		return $this->db->preparedQuery($sql,'sssiis',array($fname,$lname,$email,$mgr,$flags,$userID));
 
 	}
 	public function putResetPassword($userID,$token){
