@@ -179,6 +179,14 @@
 		CP_POPUP.makePopup('Could not create account. '+obj.error,'Error',0);
 
 	}
+	function initValidate(){
+		validateUserName();
+		validatePassword();
+		validatePasswordMatch();
+		validateName('fname');
+		validateName('lname');
+		validateEmail();
+	}
 	document.addEventListener('keyup',function(e){
 		let target=e.target;
 		if(target.id=='username'){
@@ -196,7 +204,7 @@
 		if(target.id=='lname'){
 			validateName('lname');
 		}
-		if(target.id=='username'){
+		if(target.id=='email'){
 			validateEmail();
 		}
 		submitManager();
@@ -217,5 +225,7 @@
 		}
 
 	});
+	initValidate();
 	CP_POPUP.initPopupHandler();
+
 })();
