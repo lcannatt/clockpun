@@ -96,9 +96,13 @@ body{
 }
 /* popups */
 #popup{
-	width:20em;
-	background-color:lightpink;
+	position:fixed;
+	top:22%;
+	left:40%;
+	right:40%;
 	cursor:default;
+	border-radius:.5em;
+	box-shadow: black 0 0 7px 0px;
 }
 #popup-exit{
 	float: right;
@@ -109,11 +113,28 @@ body{
 }
 #popup-header{
 	padding:.5em;
-	border-bottom: 1px solid red;
 }
 #popup-message{
 	text-align: center;
 	padding:1em;
+}
+#popup.error{
+	background-color:lightcoral;
+}
+.error #popup-header{
+	border-bottom:1px solid red;
+}
+#popup.ok{
+	background-color:lightgreen;
+}
+.ok #popup-header{
+	border-bottom:1px solid green;
+}
+#popup.info{
+	background-color:#ccc;
+}
+.info #popup-header{
+	border-bottom:1px solid black;
 }
 /*  USER TABLE  */
 
@@ -193,4 +214,47 @@ body{
 }
 .hover-count:hover{
 	opacity:1;
+}
+.edit-box{
+	position:fixed;
+	top:15%;
+	left:30%;
+	right:30%;
+	padding:1em;
+	padding-bottom:2em;
+	border-radius:.5em;
+	background-color:#e7e6e7;
+	box-shadow: black 0 0 6px 0px;
+}
+.edit-exit{
+	cursor:pointer;
+}
+.edit-exit:hover{
+	background-color:white;
+}
+.edit-header{
+	margin-bottom:2em;
+	border-bottom:1px solid black;
+	padding:.5em;
+}
+.table-form{
+	margin:auto;
+}
+.table-form td:first-of-type:not([colspan="3"]){
+	background-color:#eee;
+	font-weight: bold;
+	text-align:center;
+}
+.table-form td{
+	padding:.1em;
+}
+.topContainer{
+	margin-top:2em;
+}
+.topform{
+	padding:1em;
+	width:20em;
+	margin:auto;
+	background-color: #ccc;
+	border-radius:.5em;
 }

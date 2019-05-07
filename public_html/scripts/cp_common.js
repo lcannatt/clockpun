@@ -18,7 +18,7 @@ var CP_POPUP = function(){
 		// popup for user
 		// type input: 0: Error, 1: OK, 2:Info
 		let types=['error','ok','info']
-		let popup=TPR_GEN.newElement('div',{'id':'popup','class':types[style]})
+		let popup=TPR_GEN.newElement('div',{'id':'popup','className':types[style]})
 		let header=TPR_GEN.newElement('div',{'id':'popup-header'});
 		let titleSpan=TPR_GEN.newElement('span',{'id':'popup-title','innerText':title});
 		header.appendChild(titleSpan);
@@ -41,6 +41,16 @@ var CP_POPUP = function(){
 		document.addEventListener("click",function(e){
 			if(e.target.id=='popup-exit'){
 				//delete the popup if it's closed or clicked out of.
+				let popup=document.querySelector('#popup');
+				if(popup){
+					popup.parentElement.removeChild(popup);
+					document.querySelector('.main .wrapper').classList.remove('inactive');
+				}
+			}
+		});
+		document.addEventListener("keyup",function(e){
+			if(e.key=="Escape"){
+				//break out of any active popups with escape key.
 				let popup=document.querySelector('#popup');
 				if(popup){
 					popup.parentElement.removeChild(popup);
