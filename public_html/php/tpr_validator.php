@@ -29,6 +29,9 @@ class TPR_Validator {
 	}
 
 	public static function getGetParam($key, $blank="") {
+		if(!isset($_GET[$key])){
+			return $blank;
+		}
 		return trim(TPR_Validator::getParam($_GET[$key], $blank));
 	}
 

@@ -1,12 +1,25 @@
 'use strict';
 (function(){
-    var bars=document.querySelectorAll('.day .hour-bar');
+    var bars=document.querySelectorAll('.bar-container.day');
     bars.forEach(
         function(e){
-            let hours=parseFloat(e.getAttribute('value'));
-            let width=(5*hours/8)+'em';
-            e.style.width=width;
-            e.innerText="";
+            let peices=e.querySelectorAll('.hour-bar');
+            let total=0;
+            peices.forEach(
+                function(x){
+                    let hours=parseFloat(x.getAttribute('value'));
+                    let width=(5*hours/8);
+                    if(width+total>=6){
+                        width=6-total;
+                    }
+                    total=total+width;
+                    width=width+'em';
+                    x.style.width=width;
+                    x.innerText="";
+                }
+            );
+            
+            
         }
     );
     var totalbars=document.querySelectorAll('.total .hour-bar');

@@ -2,9 +2,9 @@
 
 require_once 'auth.php';
 require_once 'globals.php';
-// Make sure user trying to access this script is authorized to do so
-$db=Database::getDB();
-if($db->getSecEditUser()){
+
+
+function createUser(){
 	require_once 'tpr_async.php';
 	require_once 'tpr_validator.php';
 	//check that all the input data is present:
@@ -23,6 +23,7 @@ if($db->getSecEditUser()){
 		tpr_asyncError('Please enter a valid email.');
 	}
 	$mgr=TPR_Validator::getPostParam('manager');
+	$db=Database::getDB();
 	if($mgr!=-1 && (!TPR_Validator::isDigits($mgr) || !$db->getIsValidManager($mgr)) ){
 		tpr_asyncError('Not A Valid Manager.');
 	}
@@ -60,7 +61,4 @@ if($db->getSecEditUser()){
 		tpr_asyncError('Server error, please try again. If the error persists, please note the time and contact your administrator.');
 	}
 	
-} else {
-	require_once 'pc_general.php';
-	p_create404();
 }
