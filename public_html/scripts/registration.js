@@ -171,7 +171,8 @@
 	function createOK(xhttp){
 		CP_POPUP.makePopup('Congrats! Registration Complete. Redirecting to login...','Success',1);
 		setTimeout(function(){
-			window.location.href=window.location.origin;
+			let url=document.querySelector('[name="homedir"]').getAttribute('content');
+			window.location.href=url;
 		},3000);
 	}
 	function createFail(xhttp){

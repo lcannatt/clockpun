@@ -56,6 +56,7 @@ function p_header($logged_in=0){
 			<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#806394">
 			<meta name="msapplication-TileColor" content="#806394">
 			<meta name="theme-color" content="#806394">
+			<meta name="homedir" content="'.sp_home().'">
 			<link href="'.sp_css("default").'" rel="stylesheet" type="text/css" media="all">
 			<link rel="shortcut icon" type="image/x-icon" href="'.serverPrefix().'/favicon.ico">
 		</head>';
@@ -80,13 +81,16 @@ function p_navBarTop(){
 	<div class="nav-top">
 	<div class="wrapper">
 		<nav class="float-l">';
-	if($access['entry']){
+	if($db->getSecEntry()){
 		echo '<a href="'.sp_enter().'">Enter Time</a>';
 	}
-	if($access['review']||$access['hr']||$access['supreme']){
+	if($db->getSecReview()){
 		echo '<a href="'.sp_review().'">Review Time</a>';
 	}
-	if($access['admin']||$access['supreme']){
+	if($db->getSecHr()){
+		echo '<a href="'.sp_hr().'">HR View</a>';
+	}
+	if($db->getSecEditUser()){
 		echo '<a href="'.sp_manage().'">Manage Users</a>';
 	}
 	echo'</nav>

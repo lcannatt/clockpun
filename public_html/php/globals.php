@@ -1,12 +1,9 @@
 <?php
+require_once 'config.php';
 require_once "login_creds.php";
 require_once "auth.php";
 
 
-// CONFIG //
-// NON ROOT USE: If this app is not the root element in your website, specify the relative root here:
-// include all but the first slash
-DEFINE('LOCAL_ROOT',"");
 
 //user requirements
 $PWD_MIN_LENGTH = 10;
@@ -36,6 +33,10 @@ function sp_js($js_filename) {
 function sp_home(){
 	global $lpre;
 	return $lpre;
+}
+function sp_hr(){
+	global $lpre;
+	return $lpre .'/hr';
 }
 function sp_enter(){
 	global $lpre;

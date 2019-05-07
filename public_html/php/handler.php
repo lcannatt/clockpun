@@ -20,12 +20,9 @@ $handler->register('/^login$/', function($vars) {
 });
 $handler->register('/^time$/',function($vars){
 	$db=Database::getDB();
-	$access=$db->getUserAccess();
-	if($access['active']){
-		if($access['entry']){
-			require_once 'pc_entry.php';
-			p_createTimeLogging();
-		}
+	if($db->getSecEntry()){
+		require_once 'pc_entry.php';
+		p_createTimeLogging();
 	}else{
 		header("Location: ". sp_home());
 	}
@@ -33,8 +30,7 @@ $handler->register('/^time$/',function($vars){
 });
 $handler->register('/^review$/',function($vars){
 	$db=Database::getDB();
-	$access=$db->getUserAccess();
-	if($access['active'] && ($access['review'] || $access['hr'] || $access['supreme'])){
+	if($db->getSecReview()){
 		require_once 'pc_review.php';
 		p_createReview();
 	}else{
@@ -48,6 +44,13 @@ $handler->register('/^manage$/',function($vars){
 		p_createUserManagement();
 	}else{
 		header("Location: ". sp_home());
+	}
+});
+$handler->register('/^hr$/',function($vars){
+	$db=Database::getDB();
+	if($db->getSecHr()){
+		require_once 'pc_review.php';
+		p_createReview(true);
 	}
 });
 $handler->register('/^logout$/', function($vars) {
@@ -78,12 +81,18 @@ $handler->register('/^create-account$/',function($vars){
 });
 $handler->register('/^register/',function($vars){
 	if($_SERVER['REQUEST_METHOD']=='POST'){
+		//no security requirements, this is available when logged out.
 		require_once 'register.php';
 	}
 });
 $handler->register('/^create-user/',function($vars){
 	if($_SERVER['REQUEST_METHOD']=='POST'){
-		require_once 'create_user.php';
+		$db=Database::getDB();
+		if($db->getSecEditUser()){
+			require_once 'create_user.php';
+			createUser();
+		}
+		
 	}
 });
 $handler->register('/^pull$/',function($vars){
