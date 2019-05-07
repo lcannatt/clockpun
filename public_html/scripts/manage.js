@@ -127,8 +127,7 @@
 				let userId=input.name.split('edit_')[1];
 				editSingle(userId);
 			}
-		}else if(e.target.classList.contains("edit-exit") ||
-		(document.querySelector(".edit-box:not(.nodisplay)") && !e.target.closest(".edit-box"))){
+		}else if(e.target.classList.contains("edit-exit")){
 			closeEditBox();
 		}else if(e.target.id=="toggle-inactive"){
 			toggleInative();
