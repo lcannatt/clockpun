@@ -168,6 +168,42 @@ $handler->register('/^delete-time$/',function($vars){
 		}
 	}
 });
+$handler->register('/^reset-password$/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getSecEditUser()){
+			require_once 'api_userdata.php';
+			api_resetPassMgr();
+		}else{
+			p_create403('Error 403: Forbidden');
+		}
+	}
+});
+$handler->register('/^recovery$/',function($vars){
+	$token=$_GET['token'];
+	$db=Database::getDB();
+	if($db->getLoggedIn()){
+		p_create403('Error 403: Forbidden');
+	}
+	$userData=$db->getUserDataFromToken($token,false);
+	if($userData){
+		require_once 'pc_resetPass.php';
+		p_createPasswordReset($userData,$token);
+	}else{
+		p_create404();
+	}
+});
+$handler->register('/^pw-update/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getLoggedIn()){
+			p_create403('Error 403: Forbidden');
+		}else{
+			require_once 'api_userdata.php';
+			api_updatePwd();
+		}
+	}
+});
 //do the actual handling
 if(!($handler->handle($path))) {
 	p_create404();

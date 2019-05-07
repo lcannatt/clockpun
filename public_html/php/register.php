@@ -9,7 +9,7 @@ require_once 'tpr_async.php';
 
 $username=TPR_Validator::getPostParam('username');
 
-if(TPR_Validator::getPostParam('register')){
+if(TPR_Validator::getPostParam('submit')){
 	//Validate Input, put it in the db
 	//for the moment you can do whatever you want for passwords, just not blanks
 	$password=isset($_POST['password'])?$_POST['password']:'';
@@ -51,7 +51,7 @@ if(TPR_Validator::getPostParam('register')){
 	if(!$success){
 		tpr_asyncError('Database Error, please note the time and contact an administrator. Error series 100');
 	}else{
-		tpr_asyncOK(['userID'=>$success]);
+		tpr_asyncOK(['msg'=>"Congrats! Registration Complete."]);
 	}
 }else if($username){
 	//sanitize, and check if it's in the db

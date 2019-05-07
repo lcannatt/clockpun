@@ -4,13 +4,14 @@
 	// LIVE VALIDATION
 	var recentQuery=false;
 	var pending=false;
-	var validated={
-		username:false,
-		password:false,
-		password2:false,
-		fname:false,
-		lname:false,
-		email:false
+	var validated={};
+	var validators={
+		username:validate_username,
+		password:validate_password,
+		password2:validate_password2,
+		fname:validate_fname,
+		lname:validate_lname,
+		email:validate_email
 	}
 	function inputFeedback(queryString,state,message){
 		//creates feedback element in third column of table containing the input described with querystring.
@@ -79,7 +80,7 @@
 		}
 	}
 	
-	function validateUserName(){
+	function validate_username(){
 		let input=document.getElementById('username');
 		let justAN= /^[a-zA-z0-9]+$/;
 		if(input.value==''){
@@ -98,7 +99,7 @@
 			timeManagedValidation();
 		}
 	}
-	function validatePassword(){
+	function validate_password(){
 		let input=document.getElementById('password');
 		if(input.value==''){
 			validated.password=false;
@@ -110,9 +111,9 @@
 			validated.password=true;
 			inputFeedback('#password',1,"You're doing great.");
 		}
-		validatePasswordMatch();
+		validate_password2();
 	}
-	function validatePasswordMatch(){
+	function validate_password2(){
 		let input=document.getElementById('password2');
 		let password=document.getElementById('password');
 		if(input.value==''){
@@ -126,7 +127,13 @@
 			inputFeedback('#password2',1,"Huzzah!");
 		}
 	}
-	function validateName(id){
+	function validate_fname(){
+		validate_name('fname');
+	}
+	function validate_lname(){
+		validate_name('lname')
+	}
+	function validate_name(id){
 		let input=document.getElementById(id);
 		if(input.value==''){
 			validated[id]=false
@@ -139,7 +146,7 @@
 			inputFeedback('#'+id,1,"EZ-PZ");
 		}
 	}
-	function validateEmail(){
+	function validate_email(){
 		let input=document.getElementById('email');
 		if(input.value==''){
 			validated.email=false;
@@ -153,7 +160,7 @@
 		}
 	}
 	function submitManager(){
-		let register=document.getElementById('register');
+		let register=document.querySelector('input[type="submit"]');
 		if(!register){
 			return false;
 		}
@@ -169,44 +176,48 @@
 	
 	// SUBMISSION AND REDIRECT HANDLING
 	function createOK(xhttp){
-		CP_POPUP.makePopup('Congrats! Registration Complete. Redirecting to login...','Success',1);
+		let obj=JSON.parse(xhttp.responseText);
+		CP_POPUP.makePopup(obj.msg+' Redirecting to login...','Success',1);
 		setTimeout(function(){
 			let url=document.querySelector('[name="homedir"]').getAttribute('content');
 			window.location.href=url;
 		},3000);
 	}
 	function createFail(xhttp){
-		let obj = JSON.parse(xhttp);
+		let obj = JSON.parse(xhttp.responseText);
 		CP_POPUP.makePopup('Could not create account. '+obj.error,'Error',0);
 
 	}
 	function initValidate(){
-		validateUserName();
-		validatePassword();
-		validatePasswordMatch();
-		validateName('fname');
-		validateName('lname');
-		validateEmail();
+		let inputs=document.querySelectorAll('input[type="text"]');
+		inputs.forEach(function(e){
+			console.log(e.name)
+			validated[e.name]=false;
+		})
+		for(var property in validated){
+			validators[property]();
+		}
+		
 	}
 	document.addEventListener('keyup',function(e){
 		let target=e.target;
 		if(target.id=='username'){
-			validateUserName();
+			validate_username();
 		}
 		if(target.id=='password'){
-			validatePassword();
+			validate_password();
 		}
 		if(target.id=='password2'){
-			validatePasswordMatch();
+			validate_password2();
 		}
 		if(target.id=='fname'){
-			validateName('fname');
+			validate_fname();
 		}
 		if(target.id=='lname'){
-			validateName('lname');
+			validate_lname();
 		}
 		if(target.id=='email'){
-			validateEmail();
+			validate_email();
 		}
 		submitManager();
 	});
@@ -215,7 +226,7 @@
 		e.preventDefault();
 		if(e.target.id='reg-form'){
 			//Async submit doesnt include the submit button, so create a temporary input.
-			let hidden=TPR_GEN.newElement('input',{'type':'hidden','name':'register','value':'true','id':'submit'});
+			let hidden=TPR_GEN.newElement('input',{'type':'hidden','name':'submit','value':'true','id':'submit'});
 			e.target.appendChild(hidden);
 			TPR_GEN.postWrapper(e.target,
 				createOK,

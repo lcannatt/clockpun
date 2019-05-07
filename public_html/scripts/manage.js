@@ -10,7 +10,7 @@
 		message.appendChild(link);
 		CP_POPUP.makePopup(message,'Success!',1)
 	}
-	function newUserErrorHandler(xhttp){
+	function genericFailureHandler(xhttp){
 		let obj = JSON.parse(xhttp.responseText);
 		CP_POPUP.makePopup(obj.error,'Error',0);
 	}
@@ -24,11 +24,6 @@
 			closeEditBox();
 			CP_POPUP.makePopup('The user has been updated','Great Success',1);
 		}
-	}
-	function editSingleFailureHandler(xhttp){
-		let obj=JSON.parse(xhttp.responseText);
-		CP_POPUP.makePopup(obj.error,'Error',0);
-
 	}
 	function toggleInative(){
 		let button=document.getElementById('toggle-inactive');
@@ -95,6 +90,26 @@
 		}
 	}
 
+	function resetPassword(){
+		function resetOKHandler(xhttp){
+			let obj=JSON.parse(xhttp.responseText);
+			let link=newElement('a',{'href':obj.url,'target':'_blank','innerText':obj.url})
+			let message=newElement('span',{'innerHTML':'Password Reset Successfully: Please send user to the following link to update their password:<br>'});
+			message.appendChild(link);
+			CP_POPUP.makePopup(message,'Success!',1)
+		}
+		let box=document.querySelector('.edit-box:not(.nodisplay)');
+		if(box){
+			let userID=box.querySelector('input[name="userid"]');
+			let form=TPR_GEN.newElement('form',{'action':'./reset-password','method':'POST'});
+			form.appendChild(userID.cloneNode());
+			TPR_GEN.postWrapper(form,
+				resetOKHandler,
+				genericFailureHandler,
+				genericErrorHandler,
+				true);
+		}
+	}
 
 
 	//RUN AT LOAD
@@ -106,14 +121,14 @@
 			event.preventDefault();
 			TPR_GEN.postWrapper(e.target,
 				newUserSuccessHandler,
-				newUserErrorHandler,
+				genericFailureHandler,
 				genericErrorHandler,
 				true);
 		}else if(e.target.closest("#edit-user")){
 			event.preventDefault();
 			TPR_GEN.postWrapper(e.target,
 				editSingleSuccessHandler,
-				editSingleFailureHandler,
+				genericFailureHandler,
 				genericErrorHandler,
 				true)
 		}
@@ -131,6 +146,8 @@
 			closeEditBox();
 		}else if(e.target.id=="toggle-inactive"){
 			toggleInative();
+		}else if(e.target.name=="resetpw"){
+			resetPassword();
 		}
 	});
 	

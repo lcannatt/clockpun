@@ -58,3 +58,11 @@ function sp_newUser($token){
 	global $lpre;
 	return $lpre . '/create-account?token=' . urlencode($token);
 }
+function sp_recovery($token){
+	global $lpre;
+	return $lpre . '/recovery?token=' . urlencode($token);
+}
+function sp_reset(){
+	global $lpre;
+	return $lpre . '/pw-update';
+}

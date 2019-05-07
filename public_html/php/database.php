@@ -197,7 +197,7 @@ class Database {
 	}
 	public function getUserDataFromToken($token,$new=false){
 		//finds user record from a recovery token. $new being true will require that the user not have a username yet.
-		$sql="SELECT user_id,first_name,last_name,email FROM user WHERE recovery_code=? AND username".($new?'':'!')."='';";
+		$sql="SELECT user_id,first_name,last_name,email,username FROM user WHERE recovery_code=? AND username".($new?'':'!')."='';";
 		return $this->db->preparedQuerySingleRow($sql,'s',array($token));
 	}
 	public function getUserNameTaken($username){
@@ -311,6 +311,10 @@ class Database {
 		$sql="UPDATE user SET recovery_code=?,password='' WHERE user_id=?";
 		$result=$this->db->preparedQuery($sql,'si',array($token,$userID));
 		return $result;
+	}
+	public function putNewPassword($token,$newPw){
+		$sql="UPDATE user set recovery_code=null,password=? WHERE recovery_code=?";
+		return $this->db->preparedQuery($sql,'ss',array($newPw,$token));
 	}
 	public function putEmptyTime(){
 		//Checks for an existing empty time for user
