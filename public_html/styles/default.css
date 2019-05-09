@@ -27,6 +27,8 @@ nav a, nav .dropdown-button{
 	padding:.9em 1.1em;
 	text-decoration: none;
 	cursor: pointer;
+	height: 3em;
+    box-sizing: border-box;
 }
 nav a:hover, nav .dropdown-button:hover{
 	background-color:#704e86;

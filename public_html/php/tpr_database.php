@@ -19,6 +19,10 @@ class TPR_Database {
 	 * pattern.
 	 */
 	private function __construct() {
+		$this->pdocon = new PDO("mysql:host=".SERVER.";dbname=".DATABASE.";charset=utf8", USERNAME, PASSWORD);
+		if(!$this->pdocon) {
+				echo 'bad pdo';
+		}
 		//connect using creds from login_creds
 		$this->connection = mysqli_connect(SERVER, USERNAME,
 							PASSWORD, DATABASE);
@@ -55,6 +59,7 @@ class TPR_Database {
 		$this->error_message = "";
 		return $temp;
 	}
+	
 
 	public function preparedQuerySingleRow($sql, $argtypes="", $arguments=array(), $rettype=MYSQLI_ASSOC) {
 		$result = $this->preparedQuery($sql, $argtypes, $arguments, $rettype);
@@ -71,35 +76,68 @@ class TPR_Database {
 	}
 
 	//prepared query
-	public function preparedQuery($sql, $argtypes="", $arguments=array(), $rettype = MYSQLI_ASSOC) {
-		$mysqli = $this->connection;
-		if(!($stmt = $mysqli->prepare($sql))) {
-			$this->appendError("Prepared query failed to prepare");
-			return false;
-		}
+	// public function preparedQuery($sql, $argtypes="", $arguments=array(), $rettype = MYSQLI_ASSOC) {
+	// 	$mysqli = $this->connection;
+	// 	if(!($stmt = $mysqli->prepare($sql))) {
+	// 		$this->appendError("Prepared query failed to prepare");
+	// 		return false;
+	// 	}
 
-		if(sizeof($arguments)>0){
-			if(!$stmt->bind_param($argtypes, ...$arguments)) {
-				$this->appendError("Parameter binding on the query failed");
-				return false;
-			}
+	// 	if(sizeof($arguments)>0){
+	// 		if(!$stmt->bind_param($argtypes, ...$arguments)) {
+	// 			$this->appendError("Parameter binding on the query failed");
+	// 			return false;
+	// 		}
+	// 	}
+
+	// 	if(!$stmt->execute()) {
+	// 		$this->appendError("Execution of the query failed");
+	// 		return false;
+	// 	}
+
+    //             if(!($res = $stmt->get_result())) {
+	// 		//this error code denotes a lack of applicable results,
+	// 		//it means we need to return true rather than results
+	// 		if($stmt->errno === 0) {
+	// 			return true;
+	// 		}
+	// 		$this->appendError("Failed to retrieve query results");
+	// 		return false;
+	// 	}
+
+	// 	return $res->fetch_all($rettype);
+	// }
+	public function pdoPreparedQuery($sql, $argtypes, $arguments, $rettype) {
+		if($rettype == MYSQLI_ASSOC) {
+				$rettype=PDO::FETCH_ASSOC;
+		} else {
+				$rettype=PDO::FETCH_NUM;
+		}
+		$stmt = $this->pdocon->prepare($sql);
+		if(!$stmt) {
+				echo 'wew';
+		}
+		//now we bind the values
+		for($i = 0; $i < sizeof($arguments); $i++) {
+				$type = $argtypes[$i]=="s"?PDO::PARAM_STR:($argtypes[$i]=="i"?PDO::PARAM_INT:PDO::PARAM_STR);
+				if(!$stmt->bindValue($i+1, $arguments[$i], $type)) {
+						echo 'cant bind';
+				}
 		}
 
 		if(!$stmt->execute()) {
-			$this->appendError("Execution of the query failed");
-			return false;
+				echo 'cant exec';
 		}
-
-                if(!($res = $stmt->get_result())) {
-			//this error code denotes a lack of applicable results,
-			//it means we need to return true rather than results
-			if($stmt->errno === 0) {
+		if($stmt->columnCount()==0) {
 				return true;
-			}
-			$this->appendError("Failed to retrieve query results");
-			return false;
 		}
-
-		return $res->fetch_all($rettype);
+		$vals = $stmt->fetchAll($rettype);
+		return $vals;
 	}
+
+	public function preparedQuery($sql, $argtypes, $arguments, $rettype = MYSQLI_ASSOC) {
+			return $this->pdoPreparedQuery($sql, $argtypes, $arguments, $rettype);
+
+	}
+
 }

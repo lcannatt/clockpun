@@ -1,3 +1,4 @@
+DROP SCHEMA `clockpun_db`;
 CREATE SCHEMA `clockpun_db` DEFAULT CHARACTER SET utf8 ;
 USE `clockpun_db`;
 CREATE USER 'clockpun'@'localhost' IDENTIFIED BY 'password';
