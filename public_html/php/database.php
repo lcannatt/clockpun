@@ -266,6 +266,14 @@ class Database {
 		return $formatted;
 		
 	}
+	public function getUserMinutesForWeek($timestamp){
+		$sql='SELECT SUM(timestampdiff(MINUTE,time_start,time_end)) as total
+			FROM time_entered
+			WHERE (WEEK(time_start)=WEEK(?)	OR WEEK(?)=1 AND WEEK(time_start)=53) 
+				AND DATE(?)!=DATE(time_start)
+				AND user_id=?;';
+		return $this->db->preparedQuerySingleRow($sql,'sssi',array($timestamp,$timestamp,$timestamp,$this->user_id));
+	}
 
 	///////////////////////////////
 	//////////// PUTS /////////////

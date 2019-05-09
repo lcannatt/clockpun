@@ -74,6 +74,9 @@ function api_updateTime(){
 	}
 	
 }
+//delete-time: clears out data for supplied time id;
+//@param: $_POST['timeID']
+//@result: time_entered row with id timeID and userID of authenticated user is cleared.
 function api_deleteTime(){
 	$db=Database::getDB();
 	$timeID=TPR_Validator::getPostParam('timeID');
@@ -85,5 +88,23 @@ function api_deleteTime(){
 		tpr_asyncOK(['time_id'=>$timeID]);
 	}else{
 		tpr_asyncError($db->getError());
+	}
+}
+//week-total: returns minutes worked on days besides today
+//@param: $_POST['date']
+//@result: count of minutes logged by user on same week but different day.
+function api_getWeeklyTotal(){
+	$db=Database::getDB();
+	$date=TPR_Validator::getPostParam('date');
+	if(TPR_Validator::isDateString($date)){
+		$timestamp=$date.' 00:00';
+		$result=$db->getUserMinutesForWeek($timestamp);
+		if($result){
+			tpr_asyncOK(['minutes'=>$result['total']]);
+		}else{
+			tpr_asyncError('Database Error: '.$db->getError());
+		}
+	}else{
+		tpr_asyncError('Invalid Date');
 	}
 }

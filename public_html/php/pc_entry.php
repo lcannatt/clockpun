@@ -11,7 +11,7 @@ function p_createTimeLogging(){
 			<h3>Select a date</h3>
 			<input type="date" name="date" id="date" value="'.date('Y-m-d').'"/>
 			<br><br>';
-			
+	p_createTotals();
 	p_createTimeTableForDate();
 	p_createEditTimeDialog();
 	echo '</div>
@@ -21,6 +21,18 @@ function p_createTimeLogging(){
 	echo '<script type="text/javascript" src="'; echo sp_js("cp_common").'"></script>';
 	echo '<script type="text/javascript" src="'; echo sp_js("entry").'"></script>';
 	p_footer();
+}
+function p_createTotals(){
+	echo '<table id="time-totals" class="float-r"><tbody>
+			<tr>
+				<td id="daily"></td>
+				<td>Today</td>
+			</tr>		
+			<tr>
+				<td id="weekly"></td>
+				<td>This week</td>
+			</tr>
+		</tbody></table>';
 }
 function p_createTimeTableForDate($date=null){
 	if(!$date){
@@ -38,7 +50,7 @@ function p_createTimeTableForDate($date=null){
 	$userTime=$db->getUserTimeForDay($date);
 	foreach($userTime as $time){
 		echo'		<tr>
-						<input type="hidden" value="' . $time['time_id'] . '"/>
+						<input type="hidden" name="timeID" value="' . $time['time_id'] . '"/>
 						<td>' . $time['start'] . ' - ' . ($time['end'] ? $time['end'] : '') . '</td>
 						<td>' . ($time['elapsed'] ? minToTime($time['elapsed']) : '<span class="row-timer"></span>') .'</td>
 						<td>' . $time['cat_name'] . '</td>

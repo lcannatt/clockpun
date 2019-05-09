@@ -40,50 +40,7 @@
 		m = parseInt(m, 10) - 1;
 		return m >= 0 && m < 12 && d > 0 && d <= daysInMonth(m, y);
 	}
-	function dateChangeOkHandler(xhttp){
-		let obj = JSON.parse(xhttp.responseText);
-		//For now we're just going to delete and re-add every time there's a change.
-		//To do: implement cacheing of loaded time data.
-		//First clear out the old data rows
-		document.querySelectorAll('#time-history tr:not(.header-row)').forEach(
-			function(e){
-				e.parentElement.removeChild(e);
-			}
-		);
-		//now add the new data
-		let tbody=document.querySelector('#time-history tbody');
-		if(!tbody){
-			console.log("Error updating table, document missing expected node");
-		}
-		for (let timeRow in obj) {
-			if (obj.hasOwnProperty(timeRow)) {
-				tbody.appendChild(createRow(obj[timeRow]));
-			}
-		}
-		function createRow(data){
-			//creates a time table row from one id 
-			let row=TPR_GEN.newElement('tr',{});
-			row.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':data.time_id}));
-			let timeText=data.start+' - '+(data.end?data.end:'Timer Running');
-			row.appendChild(TPR_GEN.newElement('td',{'innerText':timeText}));
-			let elapsed;
-			if(data.elapsed!=null){
-				let elapsedText=minToTime(data.elapsed);
-				elapsed=TPR_GEN.newElement('td',{'innerText':elapsedText})
-			}else{
-				let startTime=Date.parse(dateInput.value+" "+data.start)
-				let diff=Date.now()-startTime;
-				let minutes=~~(diff/(1000*60));
-				let timer=TPR_GEN.newElement('span',{'value':startTime,'innerText':minToTime(minutes),'className':'timer'});
-				elapsed=TPR_GEN.newElement('td',{});
-				elapsed.appendChild(timer);
-			}
-			row.appendChild(elapsed);
-			row.appendChild(TPR_GEN.newElement('td',{'innerText':data.cat_name}));
-			row.appendChild(TPR_GEN.newElement('td',{'innerText':data.comment}));
-			return row;
-		}
-	}
+	
 	function genericFailureHandler(xhttp){
 		let obj=JSON.parse(xhttp.responseText);
 		CP_POPUP.makePopup(obj.error,"Error",0);
@@ -99,6 +56,97 @@
 			genericFailureHandler,
 			genericErrorHandler,
 			false);
+
+		function dateChangeOkHandler(xhttp){
+			let obj = JSON.parse(xhttp.responseText);
+			//For now we're just going to delete and re-add every time there's a change.
+			//To do: implement cacheing of loaded time data.
+			//First clear out the old data rows
+			document.querySelectorAll('#time-history tr:not(.header-row)').forEach(
+				function(e){
+					e.parentElement.removeChild(e);
+				}
+			);
+			//now add the new data
+			let tbody=document.querySelector('#time-history tbody');
+			if(!tbody){
+				console.log("Error updating table, document missing expected node");
+			}
+			for (let timeRow in obj) {
+				if (obj.hasOwnProperty(timeRow)) {
+					tbody.appendChild(createRow(obj[timeRow]));
+				}
+			}
+			function createRow(data){
+				//creates a time table row from one id 
+				let row=TPR_GEN.newElement('tr',{});
+				row.appendChild(TPR_GEN.newElement('input',{'type':'hidden','name':'timeID','value':data.time_id}));
+				let elapsed;
+				let minutes;
+				if(data.elapsed!=null){
+					let elapsedText=minToTime(data.elapsed);
+					elapsed=TPR_GEN.newElement('td',{'innerText':elapsedText})
+					minutes=data.elapsed;
+				}else{
+					let startTime=Date.parse(dateInput.value+" "+data.start)
+					let diff=Date.now()-startTime;
+					minutes=~~(diff/(1000*60));
+					let timer=TPR_GEN.newElement('span',{'value':startTime,'innerText':minToTime(minutes),'className':'timer'});
+					elapsed=TPR_GEN.newElement('td',{});
+					elapsed.appendChild(timer);
+				}
+				row.appendChild(TPR_GEN.newElement('input',{'type':'hidden','name':'minutes','value':minutes}))
+				let timeText=data.start+' - '+(data.end?data.end:'Timer Running');
+				row.appendChild(TPR_GEN.newElement('td',{'innerText':timeText}));
+				row.appendChild(elapsed);
+				row.appendChild(TPR_GEN.newElement('td',{'innerText':data.cat_name}));
+				row.appendChild(TPR_GEN.newElement('td',{'innerText':data.comment}));
+				return row;
+			}
+			updateTotals();
+		}
+
+	}
+	function syncTotals(){
+		let weekTotal=document.getElementById('week-total');
+		if(!weekTotal){
+			console.log('couldnt find week data')
+			return false;
+		}
+		let week=parseInt(weekTotal.value);
+		let today=0;
+		document.querySelectorAll('input[name="minutes"]').forEach(function(e){
+			week+=parseInt(e.value);
+			today+=parseInt(e.value);
+		});
+		let todayTd=document.getElementById('daily');
+		let weekTd=document.getElementById('weekly');
+		if(todayTd && weekTd){
+			todayTd.innerText=minToTime(today);
+			weekTd.innerText=minToTime(week);
+		}else{
+			console.log('week or day td was unavailable')
+		}
+	}
+	function updateTotals(){
+		let form=TPR_GEN.newElement('form',{'action':'./weekly-total','method':'POST'});
+		form.appendChild(TPR_GEN.newElement('input',{'name':'date','value':dateInput.value}));
+		TPR_GEN.postWrapper(form,
+			totalOkHandler,
+			genericFailureHandler,
+			genericErrorHandler,
+			false);
+		function totalOkHandler(xhttp){
+			let obj=JSON.parse(xhttp.responseText);
+			let weekTotal=document.getElementById('weekly');
+			let hiddenInput=document.getElementById('week-total');
+			if(hiddenInput){
+				hiddenInput.value=obj.minutes;
+			}else{
+				weekTotal.parentElement.appendChild(TPR_GEN.newElement('input',{'type':'hidden','id':'week-total','value':obj.minutes}))
+			}
+			syncTotals();
+		}
 	}
 	document.addEventListener("change",function(e){
 		if(e.target.id=='date'
@@ -236,7 +284,7 @@
 			deleteTime();
 		}
 		if(e.target.closest("#time-history tr")){
-			let id=e.target.closest("tr").querySelector('input').value;
+			let id=e.target.closest("tr").querySelector('input[name="timeID"]').value;
 			editTime(id);
 		}
 		if(e.target.id=='startNow'){
@@ -247,18 +295,21 @@
 		}
 	});
 	updateManager();
+	updateTotals();
 	function timerAnimationLooper(colon){
 		let activeClocks=document.querySelectorAll('.timer');
 		activeClocks.forEach(function(e){
 			let startTime=e.value
-			let diff=Date.now()-startTime;
-			let timecode=minToTime(~~(diff/(1000*60)));
+			let diff= ~~((Date.now()-startTime)/(1000*60));
+			let timecode=minToTime(diff);
 			if(!colon){
 				timecode=timecode.split(':').join(' ')
 			}
 			e.innerText=timecode;
+			e.closest('tr').querySelector('input[name="minutes"]').value=diff;
 		});
 		let nextColon=!colon;
+		syncTotals();
 		setTimeout(timerAnimationLooper.bind(null,nextColon),1000);
 	}
 	timerAnimationLooper(true);

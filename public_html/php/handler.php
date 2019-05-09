@@ -202,6 +202,21 @@ $handler->register('/^pw-update/',function($vars){
 			require_once 'api_userdata.php';
 			api_updatePwd();
 		}
+	}else{
+		p_create404();
+	}
+});
+$handler->register('/^weekly-total$/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getSecEntry()){
+			require_once 'api_entryData.php';
+			api_getWeeklyTotal();
+		}else{
+			p_create403('Error 403: Forbidden');
+		}
+	}else{
+		p_create404();
 	}
 });
 //do the actual handling

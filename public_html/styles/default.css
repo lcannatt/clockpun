@@ -260,3 +260,12 @@ body{
 	background-color: #ccc;
 	border-radius:.5em;
 }
+
+/*  Totals  */
+#time-totals td:nth-of-type(2){
+	font-weight: bold;
+	font-style: italic;
+}
+#time-totals{
+	border: 1px solid black;
+}
