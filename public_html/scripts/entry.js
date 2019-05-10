@@ -48,7 +48,7 @@
 	function genericErrorHandler(xhttp){
 		CP_POPUP.makePopup('Error communicating with server, please check your internet connection','Error',0)
 	}
-	function updateManager(){
+	function updateEntries(){
 		let form=TPR_GEN.newElement('form',{'action':'./get-user-time','method':'POST'});
 		form.appendChild(TPR_GEN.newElement('input',{'name':'date','value':dateInput.value}));
 		TPR_GEN.postWrapper(form,
@@ -107,6 +107,31 @@
 		}
 
 	}
+	function updateTotals(){
+		let form=TPR_GEN.newElement('form',{'action':'./weekly-total','method':'POST'});
+		form.appendChild(TPR_GEN.newElement('input',{'name':'date','value':dateInput.value}));
+		TPR_GEN.postWrapper(form,
+			totalOkHandler,
+			genericFailureHandler,
+			genericErrorHandler,
+			false);
+		function totalOkHandler(xhttp){
+			let obj=JSON.parse(xhttp.responseText);
+			let weekTotal=document.getElementById('weekly');
+			let hiddenInput=document.getElementById('week-total');
+			let time=0;
+			if(obj.minutes!=null){
+				time=obj.minutes;
+			}
+			if(hiddenInput){
+				hiddenInput.value=time;
+			}else{
+				weekTotal.parentElement.appendChild(TPR_GEN.newElement('input',{'type':'hidden','id':'week-total','value':time}))
+			}
+			syncTotals();
+		}
+	}
+	
 	function syncTotals(){
 		let weekTotal=document.getElementById('week-total');
 		if(!weekTotal){
@@ -128,33 +153,8 @@
 			console.log('week or day td was unavailable')
 		}
 	}
-	function updateTotals(){
-		let form=TPR_GEN.newElement('form',{'action':'./weekly-total','method':'POST'});
-		form.appendChild(TPR_GEN.newElement('input',{'name':'date','value':dateInput.value}));
-		TPR_GEN.postWrapper(form,
-			totalOkHandler,
-			genericFailureHandler,
-			genericErrorHandler,
-			false);
-		function totalOkHandler(xhttp){
-			let obj=JSON.parse(xhttp.responseText);
-			let weekTotal=document.getElementById('weekly');
-			let hiddenInput=document.getElementById('week-total');
-			if(hiddenInput){
-				hiddenInput.value=obj.minutes;
-			}else{
-				weekTotal.parentElement.appendChild(TPR_GEN.newElement('input',{'type':'hidden','id':'week-total','value':obj.minutes}))
-			}
-			syncTotals();
-		}
-	}
-	document.addEventListener("change",function(e){
-		if(e.target.id=='date'
-			&& isValidDate(e.target.value)){
-			updateManager();
-		}
-	});
-	//Make the time edit form visible whenever a time needs to be edited, handle changing which one is being edited
+
+	
 	function reset(form){//General purpose form clearing tool
 		form.reset();
 		form.querySelectorAll('input[type="hidden"]').forEach(
@@ -190,7 +190,7 @@
 		)
 	}
 	function editTime(id){
-		function getTimeHandler(xhttp){
+		function getTimeOKHandler(xhttp){
 			let obj=JSON.parse(xhttp.responseText);
 			let form=document.getElementById('edit-time');
 			if(form){
@@ -227,25 +227,25 @@
 		let form=TPR_GEN.newElement('form',{'action':'./get-time','method':'POST'});
 		form.appendChild(TPR_GEN.newElement('input',{'name':'id','value':id}));
 		TPR_GEN.postWrapper(form,
-			getTimeHandler,
+			getTimeOKHandler,
 			genericFailureHandler,
 			genericErrorHandler,
 			true);
 	}
 	function saveTime(){
 		var form=document.getElementById('edit-time');
-		function saveTimeHandler(xhttp){
+		function saveTimeOKHandler(xhttp){
 			let obj=JSON.parse(xhttp.responseText);
 			let localID=form.querySelector('input[name="timeID"]').value;
 			if(obj.id==localID){
 				closeEdit(form);
-				updateManager();
+				updateEntries();
 			}else{
 				CP_POPUP.makePopup('A synchronization error occurred, please try again','Error',0);
 			}
 		}
 		TPR_GEN.postWrapper(form,
-			saveTimeHandler,
+			saveTimeOKHandler,
 			genericFailureHandler,
 			genericErrorHandler,
 			true);
@@ -261,7 +261,7 @@
 			if(obj.time_id==id.value){
 				let editForm=document.getElementById('edit-time')
 				closeEdit(editForm);
-				updateManager();
+				updateEntries();
 			}
 		}
 		TPR_GEN.postWrapper(form,
@@ -273,6 +273,30 @@
 	function timeToNow(id){
 		document.getElementById(id).value=hrsMinFromDate(new Date());
 	}
+	 
+	function timerAnimationLooper(colon){
+		let activeClocks=document.querySelectorAll('.timer');
+		activeClocks.forEach(function(e){
+			let startTime=e.value
+			let diff= ~~((Date.now()-startTime)/(1000*60));
+			let timecode=minToTime(diff);
+			if(!colon){
+				timecode=timecode.split(':').join(' ')
+			}
+			e.innerText=timecode;
+			e.closest('tr').querySelector('input[name="minutes"]').value=diff;
+		});
+		let nextColon=!colon;
+		syncTotals();
+		setTimeout(timerAnimationLooper.bind(null,nextColon),1000);
+	}
+	// EVENT LISTENERS
+	document.addEventListener("change",function(e){
+		if(e.target.id=='date'
+			&& isValidDate(e.target.value)){
+			updateEntries();
+		}
+	});
 	document.addEventListener("click",function(e){
 		if(e.target.closest('#new-time')){
 			newTime();
@@ -294,24 +318,10 @@
 			timeToNow('end');
 		}
 	});
-	updateManager();
+
+	//INITIALIZATION
+	updateEntries();
 	updateTotals();
-	function timerAnimationLooper(colon){
-		let activeClocks=document.querySelectorAll('.timer');
-		activeClocks.forEach(function(e){
-			let startTime=e.value
-			let diff= ~~((Date.now()-startTime)/(1000*60));
-			let timecode=minToTime(diff);
-			if(!colon){
-				timecode=timecode.split(':').join(' ')
-			}
-			e.innerText=timecode;
-			e.closest('tr').querySelector('input[name="minutes"]').value=diff;
-		});
-		let nextColon=!colon;
-		syncTotals();
-		setTimeout(timerAnimationLooper.bind(null,nextColon),1000);
-	}
 	timerAnimationLooper(true);
 	CP_POPUP.initPopupHandler();
 })();
