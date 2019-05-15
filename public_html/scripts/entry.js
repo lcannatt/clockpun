@@ -294,7 +294,11 @@
 	document.addEventListener("change",function(e){
 		if(e.target.id=='date'
 			&& isValidDate(e.target.value)){
-			updateEntries();
+				let form=document.getElementById('edit-time');
+				if(form){
+					closeEdit(form);
+				}
+				updateEntries();
 		}
 	});
 	document.addEventListener("click",function(e){
