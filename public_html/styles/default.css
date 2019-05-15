@@ -205,14 +205,14 @@ body{
 	position:absolute;
 	z-index:11;
 	width:inherit;
-	cursor:pointer;
+	/* cursor:pointer; */
 	height:inherit !important;
 	padding:.2em;
 	background-color:#0002;
 	color:white;
 	box-sizing: border-box;
 	text-align: center;
-	opacity:0;
+	/* opacity:0; */
 }
 .hover-count:hover{
 	opacity:1;

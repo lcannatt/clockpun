@@ -238,16 +238,16 @@ class Database {
 			,last_name
 			,DAYOFWEEK(time_start) as weekday
 			,cat_name
-			,SUM(timestampdiff(MINUTE,time_start,time_end)) as minutes
-		FROM time_entered
-			LEFT JOIN user 
+			,IFNULL(SUM(timestampdiff(MINUTE,time_start,time_end)),0) as minutes
+		FROM user
+			left outer JOIN time_entered 
 			on user.user_id=time_entered.user_id
 			LEFT JOIN category_defs
 			on time_entered.category=category_defs.cat_id
 		WHERE '.($hr?'':'boss_id=?
-			AND').'
-			 (WEEK(time_start)=WEEK(?)
-				OR WEEK(?)=1 AND WEEK(time_start)=53)
+			AND').'((WEEK(time_start)=WEEK(?)
+			OR WEEK(?)=1 AND WEEK(time_start)=53)
+			OR time_start is null) AND (username!=\'\' AND flags%2=1)
 		GROUP BY
 			user_id,weekday,category
 		ORDER BY 
