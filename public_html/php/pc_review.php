@@ -7,7 +7,7 @@ function p_createReview($hr=false){
 	$db=Database::getDB();
 	p_header(1);
 	$inputDate=TPR_Validator::getGetParam('week');
-	if($inputDate){
+	if($inputDate && TPR_Validator::isDateString($inputDate)){
 		$date=$inputDate.' 00:00';
 	}else{
 		$date=strval(date('Y-m-d H:i'));
@@ -50,7 +50,8 @@ function p_createReview($hr=false){
 			echo 	"<td>$name</td>";
 			$totals=[];
 			for ($dayno=2;$dayno<=6;$dayno++){
-				echo '<td><div class="bar-container day">';
+				$localDate=DateTime::createFromFormat('Y-m-d',$date)->modify("+$dayno days")->modify("-2 days")->format('Y-m-d');
+				echo '<td><div class="bar-container day" date="'.$localDate.'">';
 				echo '<div class="float-l mark-8"></div>';
 				if(isset($data[$dayno])){
 					foreach($data[$dayno] as $cat => $min){
@@ -84,6 +85,7 @@ function p_createReview($hr=false){
 				--><div class="hour-bar PTO">PTO</div><!--
 				--><div class="hour-bar Training">Training</div>
 			</div>';
+	p_createEditTimeDialog();
 	echo '</div>
 	</div>
 	</div>';
@@ -92,4 +94,44 @@ function p_createReview($hr=false){
 	echo '<script type="text/javascript" src="'; echo sp_js("cp_common").'"></script>';
 	echo '<script type="text/javascript" src="'; echo sp_js("review").'"></script>';
 	p_footer();
+}
+
+function p_createEditTimeDialog(){
+	$db=Database::getDB();
+	global $lpre;
+	echo '
+	<form id="edit-time" action="'.$lpre.'/update-time" method="POST" class="nodisplay">
+	<h4>Time Details</h4>
+		<table>
+			<tbody>
+				<tr>
+					<td><label for="start">Start Time</label></td>
+					<td><input type="time" id="start" name="start"/></td>
+					<td><input type="button" id="startNow" value="Now"/></td>
+				</tr>
+				<tr>
+					<td><label for="end">End Time</label></td>
+					<td><input type="time" id="end" name="end"/></td>
+					<td><input type="button" id="endNow" value="Now"/></td>
+				</tr>
+				<tr>
+					<td><label for="category">Category</label></td>
+					<td><select id="category" name="category">';
+	$categories=$db->getTimeCategories();
+	foreach($categories as $cat){
+		echo '<option value="'.$cat['cat_id'].'">'.$cat['cat_name'].'</option>';
+	}
+	echo			'</td>
+				</tr>
+				<tr>
+					<td><label for="comments">Comments</label></td>
+					<td colspan="2"><textarea id="comments" name="comments"></textarea></td>
+				</tr>
+				<tr>
+					<td><input type="button" id="save" value="Save"/></td>
+					<td><input type="button" id="delete" value="Delete"/></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>';
 }

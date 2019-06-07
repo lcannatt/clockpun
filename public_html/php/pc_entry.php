@@ -47,7 +47,7 @@ function p_createTimeTableForDate($date=null){
 						<th>Comments</th>
 					</tr>';
 	$db=Database::getDB();
-	$userTime=$db->getUserTimeForDay($date);
+	$userTime=$db->getUserTimeForDay($date,$db->getUserId());
 	foreach($userTime as $time){
 		echo'		<tr>
 						<input type="hidden" name="timeID" value="' . $time['time_id'] . '"/>

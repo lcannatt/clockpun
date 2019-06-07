@@ -216,9 +216,9 @@ class Database {
 		$result['flags']=$access;
 		return $result;
 	}
-	public function getUserTimeForDay($date){//expects date in form YYYY-MM-DD as string
+	public function getUserTimeForDay($date,$userID){//expects date in form YYYY-MM-DD as string
 		$sql='SELECT time_id,TIME_FORMAT(TIME(time_start),\'%H:%i\') as start,TIME_FORMAT(TIME(time_end),\'%H:%i\') as end,cat_name,timestampdiff(MINUTE,time_start,time_end) as elapsed,comment FROM time_entered LEFT JOIN category_defs ON category=cat_id WHERE user_id=? AND DATE(?)=DATE(time_start) ORDER BY time_start ASC;';
-		return $this->db->preparedQuery($sql,'is',array($this->user_id,$date));
+		return $this->db->preparedQuery($sql,'is',array($userID,$date));
 	}
 	public function getTimeCategories(){
 		$sql='SELECT cat_id,cat_name FROM category_defs';

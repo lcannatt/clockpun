@@ -141,10 +141,10 @@ body{
 /*  USER TABLE  */
 
 .interactive-table tr:not(:first-of-type):hover{
-	background-color:#eee !important
+	background-color:#ddd !important;
+	cursor: pointer;
 }
 .interactive-table tr{
-	cursor: pointer;
 	border-bottom: black 1px solid;
 }
 
@@ -158,9 +158,13 @@ body{
 	border:1px solid #666;
 	border-radius: .2em;
 }
+#review-data td:not(:last-of-type):not(:first-of-type){
+	cursor: pointer;
+}
 .bar-container div{
 	display:inline-block;
 	height:100%;
+	
 }
 .Work{
 	background-color:lightcoral;
@@ -268,4 +272,25 @@ body{
 }
 #time-totals{
 	border: 1px solid black;
+}
+#time-details .expander{
+	height: 0;
+	overflow-y: hidden;
+	background: #eee;
+	border-bottom-left-radius: .5em;
+	border-bottom-right-radius:.5em;
+	transition:height .5s;
+	padding:1em;
+}
+
+#review-data td:first-of-type{
+	text-align: center;
+}
+#time-details td:first-of-type:not(#time-history td){
+	font-style: italic;
+	background:#eee;
+	border-radius:.5em;
+}
+#edit-time{
+	overflow:auto;
 }

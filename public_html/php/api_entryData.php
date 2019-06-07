@@ -7,8 +7,10 @@ require_once 'logger.php';
 function api_getDayTime(){
 	$db=Database::getDB();
 	$date=TPR_Validator::getPostParam('date');
-	if(TPR_Validator::isDateString($date)){
-		$results=$db->getUserTimeForDay($date);
+	$user=TPR_Validator::getPostParam('user',$db->getUserId());
+	
+	if(TPR_Validator::isDateString($date)&&TPR_Validator::isDigits($user)){
+		$results=$db->getUserTimeForDay($date,$user);
 		tpr_asyncOK($results);
 	}else{
 		tpr_asyncError('Please stop hacking');
