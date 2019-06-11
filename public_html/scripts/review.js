@@ -111,7 +111,6 @@
 		if(!expander){return false};
         let parent=expander.closest('#time-details');
 		let date=parent.querySelector('td').innerText;
-		console.log(parent)
         //Build the new time data for the affected bar.
         let newHist=expander.querySelectorAll('#time-history tr:not(.header-row)');
 		let dailyTotals={};
@@ -126,7 +125,6 @@
 				}
             });
 		}
-		console.log(dailyTotals);
 		//update the day bar
 		let bar=document.querySelector('#uid'+user+' [date="'+date+'"]');
 		bar.querySelectorAll('.hour-bar').forEach((f)=>{f.parentElement.removeChild(f)});
@@ -155,7 +153,6 @@
 				weeklyTotals[category]=time;
 			}
 		});
-		console.log(weeklyTotals);
 		let totalbar=bar.closest('tr').querySelector('.total');
 		totalbar.querySelectorAll('.hour-bar').forEach((f)=>{f.parentElement.removeChild(f)});
 		for(let category in weeklyTotals){
@@ -273,7 +270,8 @@
 	function closeEdit(form){//Reset and hide the time details form, add back the new entry button
 		reset(form);
 		form.classList.add('nodisplay');
-		document.getElementById('new-time').classList.remove('nodisplay');
+		let addNew=document.getElementById('new-time');
+		if(addNew){addNew.classList.remove('nodisplay');}
     }
     function placeForm(form){
         let newLoc=document.querySelector('#time-history');
@@ -365,7 +363,6 @@
 			genericFailureHandler,
 			genericErrorHandler,
 			true);
-		console.log('saving time');
 	}
 	function deleteTime(){
 		let form=TPR_GEN.newElement('form',{'action':'./delete-time','method':'POST'});
@@ -435,11 +432,14 @@
 				row.nextSibling && row.nextSibling.id=='time-details' 
 				&& row.nextSibling.querySelector('td').innerText==date
 			){
-				if(editForm){reset(editForm);}
+				if(editForm){closeEdit(editForm);}
 				document.querySelector('.expander').style.height='0px';
 				setTimeout(()=>{row.parentElement.removeChild(row.nextSibling);},500);
 			}else{
-				if(editForm){reset(editForm);}
+				if(editForm){
+					closeEdit(editForm);
+
+				}
             	updateEntries();
 			}
             
