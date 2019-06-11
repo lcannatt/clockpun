@@ -212,7 +212,7 @@ body{
 	/* cursor:pointer; */
 	height:inherit !important;
 	padding:.2em;
-	background-color:#0002;
+	background-color:rgba(0, 0, 0, 0.1);
 	color:white;
 	box-sizing: border-box;
 	text-align: center;

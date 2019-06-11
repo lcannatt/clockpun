@@ -3,8 +3,10 @@ require_once 'pc_general.php';
 require_once 'database.php';
 require_once 'tpr_validator.php';
 
-function p_createReview($hr=false){
+function p_createApp($role='review'){
 	$db=Database::getDB();
+	$hr=($role=='hr'?1:0);
+	$entry=($role=='entry'?1:0);
 	p_header(1);
 	$inputDate=TPR_Validator::getGetParam('week');
 	if($inputDate && TPR_Validator::isDateString($inputDate)){
@@ -18,13 +20,13 @@ function p_createReview($hr=false){
 	}
 	$lastWeek=DateTime::createFromFormat('Y-m-d H:i',$date)->modify("last monday")->format('Y-m-d');
 	$nextWeek=DateTime::createFromFormat('Y-m-d H:i',$date)->modify("next monday")->format('Y-m-d');
-	$info=$db->getOverviewData($date,$hr);
+	$info=$db->getOverviewData($date,$role);
 	$date=substr($date,0,10);
 	echo '<br>
 	<div class="main">
 	<div class="wrapper">';
 	echo '	<div class="tab-contents active">
-			<h1>'.($hr?'Review All':'Review Team').'</h1>
+			<h1>'.($role=='hr'?'Review All':'').($role=='review'?'Review Team':'').($role=='entry'?'Enter Time':'').'</h1>
 			<br>
 			<h3>Week of '.$date.'</h3>
 			<form action="" method="get">
@@ -46,7 +48,7 @@ function p_createReview($hr=false){
 	if($info){
 		foreach($info as $name=>$data){
 			$id=$data['user_id'];
-			echo "<tr id=\"$id\">";
+			echo "<tr id=\"uid$id\">";
 			echo 	"<td>$name</td>";
 			$totals=[];
 			for ($dayno=2;$dayno<=6;$dayno++){

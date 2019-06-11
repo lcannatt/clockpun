@@ -1,61 +1,17 @@
 'use strict';
-//BIG TO DOS:
-//MAKE THE CORRECT BUTTONS PAGE DEPENDENT
-//KEEP DAILY AND WEEKLY TOTAL DISPLAYS UPDATED WITH AVAILABLE DATA.
+
 (function(){
     //IMPORTANT GLOBALS::
     //EDIT MODE?
     var editMode=window.location.pathname.match(/^\/hr$/);
     //MAIN EDITBOX
-    var editForm=document.getElementById('edit-time')
-    var contents=document.querySelector('.tab-contents.active')
+    var editForm=document.getElementById('edit-time');
+    var contents=document.querySelector('.tab-contents.active');
     //DATE,USER
     var user;
     var date;
-    //GUI HANDLING
-    function widthInit(){//Calculates the correct widths for all time bars displayed on page and applies
-        var bars=document.querySelectorAll('.bar-container.day');
-        function calculateWidth(barElem,cutoff,sum){
-            let hours=parseFloat(barElem.getAttribute('value'));
-            let width=(5*hours/cutoff);
-            if(width+sum>=6){
-                width=6-sum;
-            }
-            sum=sum+width;
-            width=width+'em';
-            barElem.style.width=width;
-            barElem.innerText="";
-            return sum;
-        }
-        bars.forEach(
-            function(e){
-                let peices=e.querySelectorAll('.hour-bar');
-                let total=0;
-                peices.forEach((element)=>{total=calculateWidth(element,8,total);});                
-            }
-        );
-        var totalbars=document.querySelectorAll('.total .hour-bar');
-        totalbars.forEach((element)=>{calculateWidth(element,8,0);});
-        var allbars=document.querySelectorAll('.bar-container');
-        allbars.forEach(
-            function(e){
-                var hours=0;
-                let hourDivs=e.querySelectorAll('.hour-bar');
-                hourDivs.forEach(function(x){
-                    hours+=parseFloat(x.getAttribute('value'));
-                })
-                hours=hours.toFixed(1);
-                if(hours.charAt(hours.length-1)=="0"){
-                    hours=hours.substring(0,hours.length-2);
-                }
-                let hoverDiv=TPR_GEN.newElement('div',{"className":'hover-count','innerText':hours});
-                let mark8=e.querySelector('.mark-8');
-                e.insertBefore(hoverDiv,mark8);
-            }
-        )
-    }
 
-    //DETAILS
+	//DETAILS
     function minToTime(minutes){
 		let hr=~~(minutes/60);
 		let min=(minutes%60);
@@ -101,8 +57,121 @@
 	function genericErrorHandler(xhttp){
 		CP_POPUP.makePopup('Error communicating with server, please check your internet connection','Error',0)
     }
-    
-	function updateEntries(){
+
+	//GUI HANDLING
+	function calculateWidth(barElem,cutoff,sum){// Given an hour bar, cutoff and the sum so far, calculate and assign the width to the hour bars inside
+		let hours=parseFloat(barElem.getAttribute('value'));
+		let width=(5*hours/cutoff);
+		if(width+sum>=6){
+			width=6-sum;
+		}
+		sum=sum+width;
+		width=width+'em';
+		barElem.style.width=width;
+		barElem.innerText="";
+		return sum;
+	}
+	function calculateHoverHours(e){//updates displayed hour counts for a bar container
+		var hours=0;
+		let hourDivs=e.querySelectorAll('.hour-bar');
+		hourDivs.forEach(function(x){
+			hours+=parseFloat(x.getAttribute('value'));
+		});
+		hours=hours.toFixed(1);
+		if(hours.charAt(hours.length-1)=="0"){
+			hours=hours.substring(0,hours.length-2);
+		}
+		let hoverDiv=e.querySelector('.hover-count');
+		if(hoverDiv){
+			hoverDiv.innerText=hours;
+		}else{
+			hoverDiv=TPR_GEN.newElement('div',{"className":'hover-count','innerText':hours});
+			let mark8=e.querySelector('.mark-8');
+			e.insertBefore(hoverDiv,mark8);
+		}
+		
+	}
+    function widthInit(){//Calculates the correct widths for all time bars displayed on page and applies
+        var bars=document.querySelectorAll('.bar-container.day');    
+        bars.forEach(
+            function(e){
+                let peices=e.querySelectorAll('.hour-bar');
+                let total=0;
+                peices.forEach((element)=>{total=calculateWidth(element,8,total);});                
+            }
+        );
+        var totalbars=document.querySelectorAll('.total .hour-bar');
+        totalbars.forEach((element)=>{calculateWidth(element,40,0);});
+        var allbars=document.querySelectorAll('.bar-container');
+        allbars.forEach((bar)=>{calculateHoverHours(bar)}
+        )
+    }
+	function updateBars(){//from a submit sent from an expanded time div, update the affected bars to reflect current times.
+		let expander=document.querySelector('.expander');
+		if(!expander){return false};
+        let parent=expander.closest('#time-details');
+		let date=parent.querySelector('td').innerText;
+		console.log(parent)
+        //Build the new time data for the affected bar.
+        let newHist=expander.querySelectorAll('#time-history tr:not(.header-row)');
+		let dailyTotals={};
+        if(newHist && newHist.length>0){
+            newHist.forEach((row)=>{
+                let time=parseInt(row.querySelector('[name="minutes"]').value);
+				let category=row.querySelector('.category').innerText.replace(' ','-');
+				if(dailyTotals.hasOwnProperty(category)){
+					dailyTotals[category]+=time;
+				}else{
+					dailyTotals[category]=time;
+				}
+            });
+		}
+		console.log(dailyTotals);
+		//update the day bar
+		let bar=document.querySelector('#uid'+user+' [date="'+date+'"]');
+		bar.querySelectorAll('.hour-bar').forEach((f)=>{f.parentElement.removeChild(f)});
+		for(let category in dailyTotals){
+			let local=TPR_GEN.newElement('div',{'className':'hour-bar '+category});
+			bar.appendChild(local);
+			local.setAttribute('value',dailyTotals[category]/60);
+		}
+
+		let sum=0;
+		bar.querySelectorAll('.hour-bar').forEach((f)=>{
+			sum=calculateWidth(f,8,sum);
+		});
+		calculateHoverHours(bar);
+
+		//update the weekly totals
+		let weeklyTotals={};
+		bar.closest('tr').querySelectorAll('.day .hour-bar').forEach((f)=>{
+			f.classList.toggle('hour-bar');
+			let category=f.className;
+			f.classList.toggle('hour-bar');
+			let time=parseFloat(f.getAttribute('value'))
+			if(weeklyTotals.hasOwnProperty(category)){
+				weeklyTotals[category]+=time;
+			}else{
+				weeklyTotals[category]=time;
+			}
+		});
+		console.log(weeklyTotals);
+		let totalbar=bar.closest('tr').querySelector('.total');
+		totalbar.querySelectorAll('.hour-bar').forEach((f)=>{f.parentElement.removeChild(f)});
+		for(let category in weeklyTotals){
+			let local=TPR_GEN.newElement('div',{'className':'hour-bar '+category});
+			totalbar.appendChild(local);
+			local.setAttribute('value',weeklyTotals[category]);
+		}
+		sum=0;
+		totalbar.querySelectorAll('.hour-bar').forEach((f)=>{
+			sum=calculateWidth(f,40,sum);
+		});
+		calculateHoverHours(totalbar);
+
+		
+    }
+	function updateEntries(save=false){//refreshes data from the server for display in an expanded time div.
 		let form=TPR_GEN.newElement('form',{'action':'./get-user-time','method':'POST'});
         form.appendChild(TPR_GEN.newElement('input',{'name':'date','value':date}));
         form.appendChild(TPR_GEN.newElement('input',{'name':'user','value':user}));
@@ -119,26 +188,27 @@
 			//First clear out the old table
             let old=document.querySelector('#time-details');
             if(old){
-                old.parentElement.removeChild(old)
-            };
+                old.parentElement.removeChild(old);
+            }
             //now build a new table
             let table=TPR_GEN.newElement('table',{'className':'interactive-table','id':'time-history'});
             let tbody=TPR_GEN.newElement('tbody',{});
             tbody.appendChild(createHeader());
-			for (let timeRow in obj) {
-				if (obj.hasOwnProperty(timeRow)) {
-					tbody.appendChild(createRow(obj[timeRow]));
+            let results= obj.time
+			for (let timeRow in results) {
+				if (results.hasOwnProperty(timeRow)) {
+					tbody.appendChild(createRow(results[timeRow]));
 				}
             }
             table.appendChild(tbody);
 
             //Finally, locate where this thing is supposed to go, and append it.
-            let insertionRow=document.getElementById(user);
+            let insertionRow=document.getElementById('uid'+user);
             let newRow=TPR_GEN.newElement('tr',{'id':'time-details'});
             let td=TPR_GEN.newElement('td',{});
             td.setAttribute('colspan',insertionRow.childElementCount-2);
             let container=TPR_GEN.newElement('div',{'className':'expander'});
-            if(editMode){
+            if(obj.edit){
                 let addTime=TPR_GEN.newElement('input',{'type':'button','value':'Add New Entry','id':'new-time'})
                 let floater=TPR_GEN.newElement('div',{'className':'float-r'})
                 floater.appendChild(addTime);
@@ -150,7 +220,9 @@
             newRow.appendChild(td);
             insertionRow.parentElement.insertBefore(newRow,insertionRow.nextSibling);
             container.style.height=table.scrollHeight+'px';
-            
+            if(save){
+				updateBars();
+			}
 			function createRow(data){
 				//creates a time table row from one id 
 				let row=TPR_GEN.newElement('tr',{});
@@ -173,7 +245,7 @@
 				let timeText=data.start+' - '+(data.end?data.end:'Timer Running');
 				row.appendChild(TPR_GEN.newElement('td',{'innerText':timeText}));
 				row.appendChild(elapsed);
-				row.appendChild(TPR_GEN.newElement('td',{'innerText':data.cat_name}));
+				row.appendChild(TPR_GEN.newElement('td',{'innerText':data.cat_name,'className':'category'}));
 				row.appendChild(TPR_GEN.newElement('td',{'innerText':data.comment}));
 				return row;
             }
@@ -272,17 +344,18 @@
 			genericFailureHandler,
 			genericErrorHandler,
 			true);
-	}
+    }
 	function saveTime(){
 		let form=editForm
 		function saveTimeOKHandler(xhttp){
 			let obj=JSON.parse(xhttp.responseText);
 			let localID=form.querySelector('input[name="timeID"]').value;
 			if(obj.id==localID){
+                let expanded=form.parentElement;
 				closeEdit(form);
-                updateEntries();
-                updateDayBar()
-                widthInit();
+                updateEntries(true);
+                // updateBars(expanded);
+                // widthInit();
 			}else{
 				CP_POPUP.makePopup('A synchronization error occurred, please try again','Error',0);
 			}
@@ -304,7 +377,7 @@
 			if(obj.time_id==id.value){
 				let editForm=document.getElementById('edit-time')
 				closeEdit(editForm);
-				updateEntries();
+				updateEntries(true);
 			}
 		}
 		TPR_GEN.postWrapper(form,
@@ -316,7 +389,22 @@
 	function timeToNow(id){
 		document.getElementById(id).value=hrsMinFromDate(new Date());
     }
-
+	function timerAnimationLooper(colon){
+		let activeClocks=document.querySelectorAll('.timer');
+		activeClocks.forEach(function(e){
+			let startTime=e.value
+			let diff= ~~((Date.now()-startTime)/(1000*60));
+			let timecode=minToTime(diff);
+			if(!colon){
+				timecode=timecode.split(':').join(' ')
+			}
+			e.innerText=timecode;
+			e.closest('tr').querySelector('input[name="minutes"]').value=diff;
+		});
+		let nextColon=!colon;
+		updateBars()
+		setTimeout(timerAnimationLooper.bind(null,nextColon),1000);
+	}
     document.addEventListener("click",function(e){
 		if(e.target.closest('#new-time')){
             let date=e.target.closest('#time-details').querySelector('td').innerText;
@@ -341,12 +429,24 @@
         }
         if(e.target.closest('.bar-container.day')){//details expansion
             date=e.target.closest('.bar-container.day').getAttribute('date');
-            user=e.target.closest('tr').id;
-            if(editForm){reset(editForm);}
-            updateEntries();
+			user=e.target.closest('tr').id.slice(3);
+			let row=e.target.closest('tr');
+			if(
+				row.nextSibling && row.nextSibling.id=='time-details' 
+				&& row.nextSibling.querySelector('td').innerText==date
+			){
+				if(editForm){reset(editForm);}
+				document.querySelector('.expander').style.height='0px';
+				setTimeout(()=>{row.parentElement.removeChild(row.nextSibling);},500);
+			}else{
+				if(editForm){reset(editForm);}
+            	updateEntries();
+			}
+            
         }
     });
     
     widthInit();
-    CP_POPUP.initPopupHandler();
+	CP_POPUP.initPopupHandler();
+	timerAnimationLooper(true);
 })();

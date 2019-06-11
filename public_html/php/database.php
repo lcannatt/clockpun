@@ -232,27 +232,33 @@ class Database {
 		$sql='SELECT time_id,time_start,time_end,category,comment FROM time_entered WHERE time_id=? AND user_id=?';
 		return $this->db->preparedQuerySingleRow($sql,'ii',array($id,$this->user_id));
 	}
-	public function getOverviewData($date,$hr=false){//gets a weeks worth of overview data given an input date for user's suboordinates
+	public function getOverviewData($date,$role='review'){//gets a weeks worth of overview data given an input date for user's suboordinates
 		$sql='SELECT user.user_id
 			,first_name
 			,last_name
 			,DAYOFWEEK(time_start) as weekday
 			,cat_name
-			,IFNULL(SUM(timestampdiff(MINUTE,time_start,time_end)),0) as minutes
+			,IF(time_start is null, 0, IF(time_end is null,timestampdiff(MINUTE,time_start,NOW()),timestampdiff(MINUTE,time_start,time_end))) as minutes
 		FROM user
-			left outer JOIN time_entered 
-			on user.user_id=time_entered.user_id
-			LEFT JOIN category_defs
-			on time_entered.category=category_defs.cat_id
-		WHERE '.($hr?'':'boss_id=?
-			AND').'((WEEK(time_start)=WEEK(?)
-			OR WEEK(?)=1 AND WEEK(time_start)=53)
-			OR time_start is null) AND (username!=\'\' AND flags%2=1)
+			left outer JOIN
+				(SELECT 
+					* 
+				from time_entered 
+					LEFT outer JOIN category_defs
+					on time_entered.category=category_defs.cat_id 
+				WHERE 
+					((WEEK(time_start)=WEEK(?)
+					OR WEEK(?)=1 AND WEEK(time_start)=53)
+					OR time_start is null)) as a1
+				on user.user_id=a1.user_id
+		WHERE '.($role=='review'?'boss_id=?
+			AND ':'').($role=='entry'?'user.user_id=?
+			AND ':'').'(username!=\'\' AND flags%2=1)
 		GROUP BY
 			user_id,weekday,category
 		ORDER BY 
 			last_name ASC, first_name ASC, weekday ,category ASC';
-		$result=$hr?$this->db->preparedQuery($sql,'ss',array($date,$date)):$this->db->preparedQuery($sql,'iss',array($this->user_id,$date,$date));
+		$result=$role=='hr'?$this->db->preparedQuery($sql,'ss',array($date,$date)):$this->db->preparedQuery($sql,'ssi',array($date,$date,$this->user_id));
 		if(!$result){
 			return false;
 		}

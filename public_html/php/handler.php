@@ -21,8 +21,8 @@ $handler->register('/^login$/', function($vars) {
 $handler->register('/^time$/',function($vars){
 	$db=Database::getDB();
 	if($db->getSecEntry()){
-		require_once 'pc_entry.php';
-		p_createTimeLogging();
+		require_once 'pc_review.php';
+		p_createApp('entry');
 	}else{
 		header("Location: ". sp_home());
 	}
@@ -32,7 +32,7 @@ $handler->register('/^review$/',function($vars){
 	$db=Database::getDB();
 	if($db->getSecReview()){
 		require_once 'pc_review.php';
-		p_createReview();
+		p_createApp();
 	}else{
 		header("Location: ". sp_home());
 	}
@@ -50,7 +50,7 @@ $handler->register('/^hr$/',function($vars){
 	$db=Database::getDB();
 	if($db->getSecHr()){
 		require_once 'pc_review.php';
-		p_createReview(true);
+		p_createApp('hr');
 	}
 });
 $handler->register('/^logout$/', function($vars) {
