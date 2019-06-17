@@ -238,7 +238,7 @@ class Database {
 			,last_name
 			,DAYOFWEEK(time_start) as weekday
 			,cat_name
-			,IF(time_start is null, 0, IF(time_end is null,timestampdiff(MINUTE,time_start,NOW()),timestampdiff(MINUTE,time_start,time_end))) as minutes
+			,SUM(IF(time_start is null, 0, IF(time_end is null,timestampdiff(MINUTE,time_start,NOW()),timestampdiff(MINUTE,time_start,time_end)))) as minutes
 		FROM user
 			left outer JOIN
 				(SELECT 
