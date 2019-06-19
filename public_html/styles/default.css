@@ -147,6 +147,9 @@ body{
 .interactive-table tr{
 	border-bottom: black 1px solid;
 }
+.interactive-table{
+	padding:1em 0;
+}
 
 /*  REVIEW TABLE */
 #review-data{
@@ -279,18 +282,33 @@ body{
 	background: #eee;
 	border-bottom-left-radius: .5em;
 	border-bottom-right-radius:.5em;
-	transition:height .5s;
-	padding:1em;
+	transition:height .3s;
+	padding:0 1em;
 }
 
 #review-data td:first-of-type{
 	text-align: center;
 }
-#time-details td:first-of-type:not(#time-history td){
+.date-cell{
 	font-style: italic;
-	background:#eee;
-	border-radius:.5em;
+	text-align: right !important;
+}
+.active-date{
+	white-space: nowrap;
+	display:inline-block;
+	overflow:hidden;
+	width:5.5em;
+	padding-right:1em;
+	transition: width .15s, padding-right .1s;
+	margin:auto;
 }
 #edit-time{
 	overflow:auto;
+	padding:1em 0;
+}
+#new-time{
+	margin-top:1em;
+}
+#edit-time h4{
+	margin-top:0;
 }

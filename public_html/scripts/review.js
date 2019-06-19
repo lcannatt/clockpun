@@ -110,7 +110,7 @@
 		let expander=document.querySelector('.expander');
 		if(!expander){return false};
         let parent=expander.closest('#time-details');
-		let date=parent.querySelector('td').innerText;
+		let date=document.querySelector('.active-date').innerText;
         //Build the new time data for the affected bar.
         let newHist=expander.querySelectorAll('#time-history tr:not(.header-row)');
 		let dailyTotals={};
@@ -212,14 +212,25 @@
                 container.appendChild(floater);
             }
             container.appendChild(table);
-            td.appendChild(container);
-            newRow.appendChild(TPR_GEN.newElement('td',{'innerText':date}));
+			td.appendChild(container);
+			let datediv=TPR_GEN.newElement('div',{'className':'active-date','innerText':date});
+			let dateTd=TPR_GEN.newElement('td',{'className':'date-cell'});
+			
+            newRow.appendChild(dateTd);
             newRow.appendChild(td);
-            insertionRow.parentElement.insertBefore(newRow,insertionRow.nextSibling);
+			insertionRow.parentElement.insertBefore(newRow,insertionRow.nextSibling);
+			datediv.style.paddingRight='0px';
+			datediv.style.width='0px';
+			setTimeout(()=>{
+				dateTd.appendChild(datediv);
+				if(save){
+					updateBars();
+				}
+				setTimeout(()=>{datediv.style=""},10);
+				},100);
+			// dateTd.appendChild(datediv);
             container.style.height=table.scrollHeight+'px';
-            if(save){
-				updateBars();
-			}
+            
 			function createRow(data){
 				//creates a time table row from one id 
 				let row=TPR_GEN.newElement('tr',{});
@@ -434,7 +445,11 @@
 			){
 				if(editForm){closeEdit(editForm);}
 				document.querySelector('.expander').style.height='0px';
-				setTimeout(()=>{row.parentElement.removeChild(row.nextSibling);},500);
+				let activeDate=document.querySelector('.active-date')
+				activeDate.style.width='0px';
+				activeDate.style.paddingRight='0px';
+				setTimeout(()=>{activeDate.parentElement.removeChild(activeDate);},150);
+				setTimeout(()=>{row.parentElement.removeChild(row.nextSibling);},300);
 			}else{
 				if(editForm){
 					closeEdit(editForm);
