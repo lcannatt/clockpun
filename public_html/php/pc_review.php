@@ -30,7 +30,8 @@ function p_createApp($role='review'){
 			<br>
 			<h3>Week of '.$date.'</h3>
 			<form action="" method="get">
-			<Button name="week" value="'.$lastWeek.'">Previous</button> <Button name="week" value="'.$nextWeek.'">Next</button>
+			<input type="date" name="week" value="'.$date.'"/><br><br>
+			<Button name="week" value="'.$lastWeek.'">Last Week</button> <Button name="week" value="'.$nextWeek.'">Next Week</button>
 			</form>
 			<br>
 			<br>';
@@ -81,7 +82,6 @@ function p_createApp($role='review'){
 	echo	'</tbody></table>';
 	echo 	'<br><br>
 			<div class="bar-key">
-				<div class="float-l mark-8"></div>
 				<div class="hour-bar Work">Work</div><!--
 				--><div class="hour-bar Home-Office">Home Office</div><!--
 				--><div class="hour-bar PTO">PTO</div><!--

@@ -460,7 +460,11 @@
             
         }
     });
-    
+    document.addEventListener("change",function(e){
+		if(e.target.name=="week"){
+			e.target.closest('form').submit();
+		}
+	});
     widthInit();
 	CP_POPUP.initPopupHandler();
 	timerAnimationLooper(true);
