@@ -88,6 +88,7 @@ function p_createApp($role='review'){
 				--><div class="hour-bar Training">Training</div>
 			</div>';
 	p_createEditTimeDialog();
+	p_createEditCommentDialog();
 	echo '</div>
 	</div>
 	</div>';
@@ -96,6 +97,26 @@ function p_createApp($role='review'){
 	echo '<script type="text/javascript" src="'; echo sp_js("cp_common").'"></script>';
 	echo '<script type="text/javascript" src="'; echo sp_js("review").'"></script>';
 	p_footer();
+}
+
+function p_createEditCommentDialog(){
+	$db=Database::getDB();
+	global $lpre;
+	echo'
+	<form id="edit-comment" action="'.$lpre.'/comment-time" method="POST" class="nodisplay">
+	<h4>Edit Comment</h4>
+	<table>
+		<tbody>
+			<tr>
+				<td><textarea id="comment-hr" name="comments"></textarea></td>
+			</tr>
+			<tr>
+				<td><input type="button" id="save-comment" value="Save"/></td>
+			</tr>
+		</tbody>
+	</table>
+	</form>
+	';
 }
 
 function p_createEditTimeDialog(){

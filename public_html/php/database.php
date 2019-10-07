@@ -229,8 +229,8 @@ class Database {
 		return $this->db->preparedQuerySingleRow($sql,'i',array($this->user_id));
 	}
 	public function getTimeData($id){
-		$sql='SELECT time_id,time_start,time_end,category,comment FROM time_entered WHERE time_id=? AND user_id=?';
-		return $this->db->preparedQuerySingleRow($sql,'ii',array($id,$this->user_id));
+		$sql='SELECT time_id,time_start,time_end,category,comment,user_id FROM time_entered WHERE time_id=?';
+		return $this->db->preparedQuerySingleRow($sql,'i',array($id));
 	}
 	public function getOverviewData($date,$role='review'){//gets a weeks worth of overview data given an input date for user's suboordinates
 		$sql='SELECT user.user_id
@@ -353,6 +353,11 @@ class Database {
 	public function putUpdateTime($timeID,$start,$end,$category,$comment){
 		$sql='UPDATE time_entered SET time_start=?,time_end=?,category=?,comment=? WHERE time_id=? AND user_id=?';
 		return $this->db->preparedQuery($sql,'ssisii',array($start,$end,$category,$comment,$timeID,$this->user_id));
+	}
+	public function putUpdateComment($timeID,$comment){
+		// Updates comment on time. Should only be called by users with review access.
+		$sql='UPDATE time_entered SET comment=? WHERE time_id=?';
+		return $this->db->preparedQuery($sql,'si',array($comment,$timeID));
 	}
 
 }

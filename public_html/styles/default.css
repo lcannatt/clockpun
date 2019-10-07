@@ -284,6 +284,7 @@ body{
 	border-bottom-right-radius:.5em;
 	transition:height .3s;
 	padding:0 1em;
+	max-width:30em
 }
 
 #review-data td:first-of-type{
@@ -306,9 +307,23 @@ body{
 	overflow:auto;
 	padding:1em 0;
 }
+#edit-comment{
+	overflow:auto;
+	padding:0 0 1em 0;
+}
 #new-time{
 	margin-top:1em;
 }
 #edit-time h4{
 	margin-top:0;
+}
+#time-history td:first-of-type{
+	min-width: 6em;
+}
+textarea{
+	min-height:4em;
+	max-height:4em;
+	resize: horizontal;
+	max-width: 28em;
+	min-width:15em;
 }

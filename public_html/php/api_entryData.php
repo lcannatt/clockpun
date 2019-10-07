@@ -35,16 +35,45 @@ function api_newTimeEntry(){
 	}
 }
 //get-time: returns time data for one entry
-function api_getOneTime(){
+//input: $review: from handler, indicates whether user has security for review+
+//output: JSON Object response with response type field (response_type:{data|comment})
+function api_getOneTime($review){
 	$db=Database::getDB();
 	$id=TPR_Validator::getPostParam('id');
 	if(TPR_Validator::isDigits($id)){
 		$data=$db->getTimeData($id);
 		if($data){
-			tpr_asyncOK($data);
+			if($data['user_id']==$db->getUserID()){
+				//User may always edit own time data
+				unset($data['user_id']);
+				$data['response_type']='data';
+				tpr_asyncOK($data);
+			}else if($review){
+				//Reviewer may edit comments
+				tpr_asyncOK(['response_type'=>'comment','comment'=>$data['comment'],'time_id'=>$data['time_id']]);
+			}
+			else{
+				tpr_asyncError('Error getting time to edit');
+			}
 		}else{
 			tpr_asyncError('Error getting time to edit');
 		}
+	}
+}
+//comment-time: updates comment on a specific time row. Security should be checked in handler, only called by Reviewers.
+function api_commentTime(){
+	$db=Database::getDB();
+	$timeID=TPR_Validator::getPostParam('timeID');
+	if(!TPR_Validator::isDigits($timeID)){
+		tpr_asyncError('Invalid Time ID, stop hacking');
+	}
+	$comment=TPR_Validator::getPostParam('comments');
+	$comment=strip_tags($comment);
+	$success=$db->putUpdateComment($timeID,$comment);
+	if($success){
+		tpr_asyncOK(['id'=>$timeID]);
+	}else{
+		tpr_asyncError($db->getError());
 	}
 }
 //update-time: updates db to reflect user input for one time data input;

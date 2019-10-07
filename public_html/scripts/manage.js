@@ -1,5 +1,5 @@
 'use strict';
-
+//This file manages the front end for user management.
 (function(){
 	var newElement=TPR_GEN.newElement;
 	//New User tools

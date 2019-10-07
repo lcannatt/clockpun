@@ -140,7 +140,7 @@ $handler->register('/^get-time$/',function($vars){
 		$db=Database::getDB();
 		if($db->getSecEntry()){
 			require_once 'api_entryData.php';
-			api_getOneTime();
+			api_getOneTime($db->getSecReview());
 		}else{
 			p_create403('Error 403: Forbidden');
 		}
@@ -152,6 +152,17 @@ $handler->register('/^update-time$/',function($vars){
 		if($db->getSecEntry()){
 			require_once 'api_entryData.php';
 			api_updateTime();
+		}else{
+			p_create403('Error 403: Forbidden');
+		}
+	}
+});
+$handler->register('/^comment-time$/',function($vars){
+	if($_SERVER['REQUEST_METHOD']=='POST'){
+		$db=Database::getDB();
+		if($db->getSecReview()){
+			require_once 'api_entryData.php';
+			api_commentTime();
 		}else{
 			p_create403('Error 403: Forbidden');
 		}

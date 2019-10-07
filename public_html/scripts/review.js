@@ -284,7 +284,7 @@
 		let addNew=document.getElementById('new-time');
 		if(addNew){addNew.classList.remove('nodisplay');}
     }
-    function placeForm(form){
+    function placeForm(form){//move hidden form appropriately, and unhide it.
         let newLoc=document.querySelector('#time-history');
         newLoc.parentElement.appendChild(form);
         form.classList.remove('nodisplay');
@@ -313,38 +313,60 @@
 	}
 	function editTime(id,date){
 		function getTimeOKHandler(xhttp){
+			function selfEditTime(){//General Self Time Editing UI
+				let form=document.getElementById('edit-time');
+				if(form){
+					reset(form);
+					form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':obj.time_id,'name':'timeID'}))
+					form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':date,'name':'date'}))
+					placeForm(form)
+				}
+				//input the db values into the form
+				//start time
+				let startDate=new Date(obj.time_start);
+				let valueString=hrsMinFromDate(startDate);
+				document.getElementById('start').value=valueString;
+				//end time
+				if(obj.time_end){
+					let endDate=new Date(obj.time_end);
+					valueString=hrsMinFromDate(endDate);
+					document.getElementById('end').value=valueString;
+				}
+				//category
+				if(obj.category){
+					document.getElementById('category').value=obj.category;
+				}
+				//comments
+				if(obj.comment){
+					document.getElementById('comments').value=obj.comment;
+				}
+				//hide the new entry button while edit is open
+				let newTime=document.getElementById('new-time');
+				if(newTime){
+					newTime.classList.add('nodisplay');
+				}
+			}
+			function editComment(){//Comment Editing by Reviewers UI
+				let form=document.getElementById('edit-comment');
+				if(form){
+					reset(form);
+					form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':obj.time_id,'name':'timeID'}))
+					placeForm(form)
+				}
+				if(obj.comment){
+					document.getElementById('comment-hr').value=obj.comment
+				}
+			}
+
 			let obj=JSON.parse(xhttp.responseText);
-			let form=document.getElementById('edit-time');
-			if(form){
-				reset(form);
-				form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':obj.time_id,'name':'timeID'}))
-                form.appendChild(TPR_GEN.newElement('input',{'type':'hidden','value':date,'name':'date'}))
-                placeForm(form)
+			//Logic for which edit to display based on reply
+			if(obj.response_type=='data'){
+				selfEditTime()
 			}
-			//input the db values into the form
-			//start time
-			let startDate=new Date(obj.time_start);
-			let valueString=hrsMinFromDate(startDate);
-			document.getElementById('start').value=valueString;
-			//end time
-			if(obj.time_end){
-				let endDate=new Date(obj.time_end);
-				valueString=hrsMinFromDate(endDate);
-				document.getElementById('end').value=valueString;
+			if(obj.response_type=='comment'){
+				editComment()
 			}
-			//category
-			if(obj.category){
-				document.getElementById('category').value=obj.category;
-			}
-			//comments
-			if(obj.comment){
-				document.getElementById('comments').value=obj.comment;
-			}
-			//hide the new entry button while edit is open
-			let newTime=document.getElementById('new-time');
-			if(newTime){
-				newTime.classList.add('nodisplay');
-			}
+			
 		}
 		let form=TPR_GEN.newElement('form',{'action':'./get-time','method':'POST'});
 		form.appendChild(TPR_GEN.newElement('input',{'name':'id','value':id}));
@@ -353,24 +375,29 @@
 			genericFailureHandler,
 			genericErrorHandler,
 			true);
-    }
+	}
+	function saveTimeOKHandler(form,xhttp){
+		let obj=JSON.parse(xhttp.responseText);
+		let localID=form.querySelector('input[name="timeID"]').value;
+		if(obj.id==localID){
+			closeEdit(form);
+			updateEntries(true);
+		}else{
+			CP_POPUP.makePopup('A synchronization error occurred, please try again','Error',0);
+		}
+	}
 	function saveTime(){
 		let form=editForm
-		function saveTimeOKHandler(xhttp){
-			let obj=JSON.parse(xhttp.responseText);
-			let localID=form.querySelector('input[name="timeID"]').value;
-			if(obj.id==localID){
-                let expanded=form.parentElement;
-				closeEdit(form);
-                updateEntries(true);
-                // updateBars(expanded);
-                // widthInit();
-			}else{
-				CP_POPUP.makePopup('A synchronization error occurred, please try again','Error',0);
-			}
-		}
 		TPR_GEN.postWrapper(form,
-			saveTimeOKHandler,
+			saveTimeOKHandler.bind(null,form),
+			genericFailureHandler,
+			genericErrorHandler,
+			true);
+	}
+	function saveComment(){
+		let form=document.getElementById('edit-comment');
+		TPR_GEN.postWrapper(form,
+			saveTimeOKHandler.bind(null,form),
 			genericFailureHandler,
 			genericErrorHandler,
 			true);
@@ -383,7 +410,6 @@
 		function deleteOKHandler(xhttp){
 			let obj=JSON.parse(xhttp.responseText);
 			if(obj.time_id==id.value){
-				let editForm=document.getElementById('edit-time')
 				closeEdit(editForm);
 				updateEntries(true);
 			}
@@ -421,6 +447,9 @@
 		if(e.target.id=="save"){
 			saveTime();
 		}
+		if(e.target.id=="save-comment"){
+			saveComment();
+		}
 		if(e.target.id=="delete"){
 			deleteTime();
 		}
@@ -439,11 +468,12 @@
             date=e.target.closest('.bar-container.day').getAttribute('date');
 			user=e.target.closest('tr').id.slice(3);
 			let row=e.target.closest('tr');
+			let openForm=document.querySelector('#time-details form');
 			if(
 				row.nextSibling && row.nextSibling.id=='time-details' 
 				&& row.nextSibling.querySelector('td').innerText==date
 			){
-				if(editForm){closeEdit(editForm);}
+				if(openForm){closeEdit(openForm);}//Move any open input fields back out of this area
 				document.querySelector('.expander').style.height='0px';
 				let activeDate=document.querySelector('.active-date')
 				activeDate.style.width='0px';
@@ -451,8 +481,8 @@
 				setTimeout(()=>{activeDate.parentElement.removeChild(activeDate);},150);
 				setTimeout(()=>{row.parentElement.removeChild(row.nextSibling);},300);
 			}else{
-				if(editForm){
-					closeEdit(editForm);
+				if(openForm){
+					closeEdit(openForm);
 
 				}
             	updateEntries();
